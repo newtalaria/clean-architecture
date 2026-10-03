@@ -4,7 +4,7 @@ description: A Riverpod notifier calls the use case. The note tile does not impo
 tags: [clean-architecture, flutter]
 ---
 
-`features/notes/presentation/` holds the page, the notifier, and the tile. The tile does not import Riverpod. The page imports `app/providers.dart` for the use cases and does not import `features/notes/data/`.
+`features/notes/presentation/` holds the page, the notifier, and the tile. The tile does not import Riverpod. The notifier imports `app/providers.dart` for the use cases. Neither the page nor the notifier imports `features/notes/data/`.
 
 The shell router is `app/router/notes_location.dart`. It imports the feature page. `ScreenReporter` calls `NotesMonitoring.setScreen` from that location, so Beamer stays the router adapter even though the route table is not inside the feature.
 
