@@ -1,0 +1,1 @@
+# Notes API (layer-first)\n\nDart package for the [layer-first](https://www.newtalaria.com/docs/clean-architecture/serverpod/layer-first) track. Run `dart test`.\n

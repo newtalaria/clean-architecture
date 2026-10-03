@@ -1,0 +1,1 @@
+# Notes API (feature-first)\n\nDart package for the [feature-first](https://www.newtalaria.com/docs/clean-architecture/serverpod/feature-first) track. Run `dart test`.\n

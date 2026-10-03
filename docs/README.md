@@ -17,12 +17,8 @@ The dependency rule is the whole method. Source dependencies point inward. Outer
 
 The running example is a notes application. A note has an identity, a title, and a body. Saving one is enough to show every boundary. The same domain shows up again in each course, so the trees can be compared.
 
-## Coming next
+## Courses
 
-These live in this same book, after the principles.
+- [Serverpod](serverpod/README.md) — the same notes API, built layer-first, feature-first, and hybrid, then instrumented with `talaria_serverpod`
 
-- **Serverpod** — one small notes API, built layer-first, feature-first, and hybrid. A late chapter instruments the API.
-- **Flutter** — the same notes client, built hybrid, layer-first, and feature-first. Each app instruments the composition root and the screen edge.
-- **Skills** — rules you copy onto a new project for the layout you chose.
-
-Until those chapters land, the book is the part you can apply in any language.
+Flutter and the skills pack are still to come. The book above applies in any language. The Serverpod course is where the folders become Dart.

@@ -1,0 +1,13 @@
+name: notes_hybrid
+description: Notes API sample, hybrid clean architecture on Serverpod.
+publish_to: none
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  talaria: ^0.3.7
+  talaria_serverpod: ^0.2.5
+
+dev_dependencies:
+  lints: ^5.0.0
+  test: ^1.25.8

@@ -1,0 +1,1 @@
+# Notes API (hybrid)\n\nDart package for the [hybrid](https://www.newtalaria.com/docs/clean-architecture/serverpod/hybrid) track. Run `dart test`.\n

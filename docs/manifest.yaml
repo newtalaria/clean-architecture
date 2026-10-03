@@ -59,3 +59,189 @@ pages:
     title: Testing by layer
     description: Pure domain tests, fake ports around a use case, one integration test at the store, and mapper tests at the edge.
     tags: [clean-architecture, testing]
+
+  - id: serverpod
+    path: serverpod/README.md
+    title: Serverpod
+    description: One notes API, built layer-first, feature-first, and hybrid, then instrumented.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-lf
+    path: serverpod/layer-first/README.md
+    title: Layer-first
+    description: Top folders are the layers. The notes feature repeats inside each one, and wire mappers live in one shared file.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-lf-pros-and-cons
+    path: serverpod/layer-first/pros-and-cons.md
+    title: Pros and cons
+    description: What you gain when the folder tree is the dependency rule, and what a feature change costs.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-lf-when-to-use
+    path: serverpod/layer-first/when-to-use.md
+    title: When to use it
+    description: Choose layer-first when the domain is shared and workflows cross features.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-lf-domain
+    path: serverpod/layer-first/domain.md
+    title: Domain
+    description: The note entity and the repository port, with no Serverpod import.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-lf-application
+    path: serverpod/layer-first/application.md
+    title: Application
+    description: SaveNoteUseCase takes the repository port, a clock, and an id generator.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-lf-infrastructure
+    path: serverpod/layer-first/infrastructure.md
+    title: Infrastructure
+    description: A request-scoped store, a row type, and a mapper. This is where Session would sit.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-lf-presentation
+    path: serverpod/layer-first/presentation.md
+    title: Presentation
+    description: A thin save method maps the wire input, calls the use case, and maps ValidationFailure to a 400.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-lf-composition
+    path: serverpod/layer-first/composition.md
+    title: Composition root
+    description: UseCases is the only type that constructs NoteRepositoryImpl.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-lf-tests
+    path: serverpod/layer-first/tests.md
+    title: Tests
+    description: A domain test, a fake-repository use case test, and one test through the endpoint into the store.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-lf-talaria
+    path: serverpod/layer-first/talaria.md
+    title: Talaria
+    description: Initialize talaria_serverpod when TALARIA_API_KEY is set, and attach it on the Serverpod constructor.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-ff
+    path: serverpod/feature-first/README.md
+    title: Feature-first
+    description: One notes folder holds domain, application, infrastructure, and presentation. The composition root stays shared.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-ff-pros-and-cons
+    path: serverpod/feature-first/pros-and-cons.md
+    title: Pros and cons
+    description: What you gain when one folder is the whole use case, and where the dependency rule gets easier to break.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-ff-when-to-use
+    path: serverpod/feature-first/when-to-use.md
+    title: When to use it
+    description: Choose feature-first when features are independent and a person should live in one folder.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-ff-domain
+    path: serverpod/feature-first/domain.md
+    title: Domain
+    description: The note entity and the repository port, with no Serverpod import.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-ff-application
+    path: serverpod/feature-first/application.md
+    title: Application
+    description: SaveNoteUseCase takes the repository port, a clock, and an id generator.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-ff-infrastructure
+    path: serverpod/feature-first/infrastructure.md
+    title: Infrastructure
+    description: A request-scoped store, a row type, and a mapper. This is where Session would sit.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-ff-presentation
+    path: serverpod/feature-first/presentation.md
+    title: Presentation
+    description: A thin save method maps the wire input, calls the use case, and maps ValidationFailure to a 400.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-ff-composition
+    path: serverpod/feature-first/composition.md
+    title: Composition root
+    description: UseCases is the only type that constructs NoteRepositoryImpl.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-ff-tests
+    path: serverpod/feature-first/tests.md
+    title: Tests
+    description: A domain test, a fake-repository use case test, and one test through the endpoint into the store.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-ff-talaria
+    path: serverpod/feature-first/talaria.md
+    title: Talaria
+    description: Initialize talaria_serverpod when TALARIA_API_KEY is set, and attach it on the Serverpod constructor.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-hy
+    path: serverpod/hybrid/README.md
+    title: Hybrid
+    description: Domain, application, and infrastructure stay horizontal. The notes endpoint and its wire mapper are the feature slice.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-hy-pros-and-cons
+    path: serverpod/hybrid/pros-and-cons.md
+    title: Pros and cons
+    description: What you gain when the domain stays shared and endpoints are local, and the two rules you have to remember.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-hy-when-to-use
+    path: serverpod/hybrid/when-to-use.md
+    title: When to use it
+    description: Choose hybrid when most changes are endpoints and the domain is still shared.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-hy-domain
+    path: serverpod/hybrid/domain.md
+    title: Domain
+    description: The note entity and the repository port, with no Serverpod import.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-hy-application
+    path: serverpod/hybrid/application.md
+    title: Application
+    description: SaveNoteUseCase takes the repository port, a clock, and an id generator.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-hy-infrastructure
+    path: serverpod/hybrid/infrastructure.md
+    title: Infrastructure
+    description: A request-scoped store, a row type, and a mapper. This is where Session would sit.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-hy-presentation
+    path: serverpod/hybrid/presentation.md
+    title: Presentation
+    description: A thin save method maps the wire input, calls the use case, and maps ValidationFailure to a 400.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-hy-composition
+    path: serverpod/hybrid/composition.md
+    title: Composition root
+    description: UseCases is the only type that constructs NoteRepositoryImpl.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-hy-tests
+    path: serverpod/hybrid/tests.md
+    title: Tests
+    description: A domain test, a fake-repository use case test, and one test through the endpoint into the store.
+    tags: [clean-architecture, serverpod]
+
+  - id: sp-hy-talaria
+    path: serverpod/hybrid/talaria.md
+    title: Talaria
+    description: Initialize talaria_serverpod when TALARIA_API_KEY is set, and attach it on the Serverpod constructor.
+    tags: [clean-architecture, serverpod]
