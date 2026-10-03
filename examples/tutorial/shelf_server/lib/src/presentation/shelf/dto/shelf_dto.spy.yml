@@ -1,0 +1,6 @@
+class: ShelfDto
+fields:
+  id: UuidValue
+  name: String
+  capacity: int
+  createdAt: DateTime

@@ -1,0 +1,30 @@
+services:
+  # Development services
+  postgres:
+    image: ghcr.io/serverpod/postgres:16
+    ports:
+      - "8290:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: shelf
+      POSTGRES_PASSWORD: "q_gUTRkRnnK8KWwaA7Zg_KZnb-xfB9eQ"
+    volumes:
+      - shelf_data:/var/lib/postgresql/data
+
+
+  # Test services
+  postgres_test:
+    image: ghcr.io/serverpod/postgres:16
+    ports:
+      - "9290:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: shelf_test
+      POSTGRES_PASSWORD: "N7O993mj0ch2TCySu6Yr6FFMNYfSUriE"
+    volumes:
+      - shelf_test_data:/var/lib/postgresql/data
+
+
+volumes:
+  shelf_data:
+  shelf_test_data:

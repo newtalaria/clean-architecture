@@ -1,0 +1,3 @@
+exception: ApiNotFoundException
+fields:
+  message: String

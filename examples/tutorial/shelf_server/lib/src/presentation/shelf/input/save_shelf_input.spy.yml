@@ -1,0 +1,4 @@
+class: SaveShelfInput
+fields:
+  name: String
+  capacity: int

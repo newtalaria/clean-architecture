@@ -1,0 +1,3 @@
+class: ShelfListResponse
+fields:
+  shelves: List<ShelfDto>

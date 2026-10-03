@@ -1,0 +1,8 @@
+class: BookDto
+fields:
+  id: UuidValue
+  title: String
+  authorName: String
+  status: ReadingStatusWire
+  shelfId: UuidValue?
+  createdAt: DateTime

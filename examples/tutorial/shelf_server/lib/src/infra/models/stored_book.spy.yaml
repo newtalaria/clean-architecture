@@ -1,0 +1,14 @@
+### Persistence row for a book. Not the domain entity.
+class: StoredBook
+serverOnly: true
+table: stored_book
+fields:
+  id: UuidValue?, defaultPersist=random_v7
+  title: String
+  authorName: String
+  status: String
+  shelfId: UuidValue?
+  createdAt: DateTime
+indexes:
+  stored_book_shelf_id_idx:
+    fields: shelfId

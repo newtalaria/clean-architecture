@@ -1,0 +1,5 @@
+class: SaveBookInput
+fields:
+  title: String
+  authorName: String
+  status: ReadingStatusWire

@@ -1,0 +1,5 @@
+enum: ReadingStatusWire
+values:
+  - unread
+  - reading
+  - read

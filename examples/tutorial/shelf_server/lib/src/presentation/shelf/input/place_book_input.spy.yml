@@ -1,0 +1,4 @@
+class: PlaceBookInput
+fields:
+  bookId: UuidValue
+  shelfId: UuidValue

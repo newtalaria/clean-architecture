@@ -437,3 +437,196 @@ pages:
     title: Skills
     description: Copy the dependency rule and one layout into a project, then add Flutter UI, Serverpod generate, or the Talaria bootstrap.
     tags: [clean-architecture, skills]
+
+  - id: tutorial
+    path: tutorial/README.md
+    title: Shelf
+    description: A long tutorial. Build a hybrid Serverpod API and a hybrid Flutter client, one file at a time.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-server-project
+    path: tutorial/server/project.md
+    title: Project
+    description: Create the Serverpod project, move the ports off 8080, and make the empty layer folders.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-failures
+    path: tutorial/server/failures.md
+    title: Failures
+    description: Three domain exceptions. Validation, missing rows, and conflicts.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-book-title
+    path: tutorial/server/book-title.md
+    title: Book title
+    description: A value object that trims a title and rejects an empty or oversized one.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-reading-status
+    path: tutorial/server/reading-status.md
+    title: Reading status
+    description: The unread, reading, and read states as a Dart enum.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-book
+    path: tutorial/server/book.md
+    title: Book
+    description: The book entity. create checks the title and the author. placeOnShelf refuses a second shelf.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-book-repository
+    path: tutorial/server/book-repository.md
+    title: Book repository
+    description: The port the domain needs. save, findById, list, and countOnShelf.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-ports
+    path: tutorial/server/ports.md
+    title: Ports
+    description: A clock and an id generator. The use case does not call DateTime.now or Uuid itself.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-save-book
+    path: tutorial/server/save-book.md
+    title: Save a book
+    description: One command and one use case. The use case builds a Book and asks the port to save it.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-list-books
+    path: tutorial/server/list-books.md
+    title: List books
+    description: A second use case that only calls list.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-book-tests
+    path: tutorial/server/book-tests.md
+    title: Book tests
+    description: Domain tests and a use-case test with an in-memory repository.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-stored-book
+    path: tutorial/server/stored-book.md
+    title: Stored book
+    description: The spy file for the Postgres row. serverOnly, an explicit table name, and a shelf id index.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-book-mapper
+    path: tutorial/server/book-mapper.md
+    title: Book mapper
+    description: BookMapper turns a domain book into a StoredBook and back.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-book-repository-impl
+    path: tutorial/server/book-repository-impl.md
+    title: Book repository implementation
+    description: BookRepositoryImpl takes a Session, uses the ORM, and returns domain books.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-book-wire
+    path: tutorial/server/book-wire.md
+    title: Book wire types
+    description: Spy files for the API, and a wire mapper that lives beside the book endpoint.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-book-endpoint
+    path: tutorial/server/book-endpoint.md
+    title: Book endpoint
+    description: A thin endpoint. Map the input, call one use case, map the book or the failure.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-composition
+    path: tutorial/server/composition.md
+    title: Composition root
+    description: app/repositories.dart and app/use_cases.dart construct the repository implementations.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-integration
+    path: tutorial/server/integration.md
+    title: Integration test
+    description: Call the generated book endpoint through withServerpod.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-flutter-project
+    path: tutorial/flutter/project.md
+    title: Flutter project
+    description: Add shelf_flutter to the workspace and depend on shelf_client.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-flutter-domain
+    path: tutorial/flutter/domain.md
+    title: Flutter domain
+    description: Write Book again. The client cannot import the server domain.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-flutter-application
+    path: tutorial/flutter/application.md
+    title: Flutter application
+    description: The client use case validates with Book.create, then saves.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-flutter-data
+    path: tutorial/flutter/data.md
+    title: Data
+    description: ProtocolMappers and ServerpodBookRepository. Wire types do not leave this folder.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-flutter-providers
+    path: tutorial/flutter/providers.md
+    title: Providers
+    description: app/providers.dart is the only file that constructs ServerpodBookRepository.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-flutter-presentation
+    path: tutorial/flutter/presentation.md
+    title: Books screen
+    description: A hand-written AsyncNotifier, a page, a tile with no Riverpod, and a Beamer location.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-flutter-run
+    path: tutorial/flutter/run.md
+    title: Run the app
+    description: Point the client at port 8280, save a book, and see it in the list.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-server-shelves
+    path: tutorial/server/shelves.md
+    title: Shelves on the server
+    description: The same path as books. A name, a capacity, a row, a mapper, and a thin endpoint.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-flutter-shelves
+    path: tutorial/flutter/shelves.md
+    title: Shelves on Flutter
+    description: The shelf form and list. The place control is the next chapter.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-place-book
+    path: tutorial/server/place-book.md
+    title: Place a book on a shelf
+    description: PlaceBookOnShelfUseCase lives in application/shelf and takes both repositories.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-flutter-place
+    path: tutorial/flutter/place-book.md
+    title: The place control
+    description: The Flutter use case calls one repository method. The page does not re-check capacity.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-server-talaria
+    path: tutorial/server/talaria.md
+    title: Server instrumentation
+    description: Start talaria_serverpod when TALARIA_API_KEY is set.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-flutter-talaria
+    path: tutorial/flutter/talaria.md
+    title: Flutter instrumentation
+    description: Optional init, one zone around the binding and runApp, HTTP wrap, and setScreen.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-close
+    path: tutorial/close.md
+    title: Where to go next
+    description: The dependency picture for placing a book, and the short courses.
+    tags: [clean-architecture, tutorial]
+

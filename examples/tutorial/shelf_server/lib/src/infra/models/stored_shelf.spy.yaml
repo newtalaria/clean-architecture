@@ -1,0 +1,9 @@
+### Persistence row for a shelf. Not the domain entity.
+class: StoredShelf
+serverOnly: true
+table: stored_shelf
+fields:
+  id: UuidValue?, defaultPersist=random_v7
+  name: String
+  capacity: int
+  createdAt: DateTime

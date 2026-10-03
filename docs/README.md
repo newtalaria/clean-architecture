@@ -19,6 +19,7 @@ The running example is a notes application. A note has an identity, a title, and
 
 ## Courses
 
+- [Shelf](tutorial/README.md) — the long tutorial. A hybrid Serverpod API and a hybrid Flutter client, one file at a time, including one use case that uses two features
 - [Serverpod](serverpod/README.md) — the same notes API, built layer-first, feature-first, and hybrid, then instrumented with `talaria_serverpod`
 - [Flutter](flutter/README.md) — the same notes client, built hybrid, layer-first, and feature-first, then instrumented with `talaria_flutter`
 - [Skills](skills/README.md) — copy the dependency rule and the layout you picked onto a new project

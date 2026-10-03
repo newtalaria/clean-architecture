@@ -1,0 +1,3 @@
+class: BookListResponse
+fields:
+  books: List<BookDto>
