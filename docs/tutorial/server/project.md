@@ -12,14 +12,14 @@ serverpod create shelf --template server --no-redis --no-auth --ide none
 
 That writes a workspace with `shelf_server` and `shelf_client`. Move both under `examples/tutorial/`, with a workspace `pubspec.yaml` that lists them. The template also writes a greeting endpoint. Delete `lib/src/greetings/` and its test. Shelf does not start from a sample endpoint.
 
-The template listens on port 8080 and Postgres on 8090. Change `config/development.yaml`, `config/staging.yaml`, `config/production.yaml`, `config/test.yaml`, and `docker-compose.yaml` so this project uses 8280, 8281, 8282, Postgres 8290, and the test database 9290.
+The template listens on port 8080 and Postgres on 8090. Serverpod 4.0.1 already writes `config/passwords.yaml`. There is no `config/passwords.example.yaml` to copy. The generated passwords file is what `dart test` and `docker compose` read.
 
-`config/passwords.yaml` is gitignored. The template's `docker-compose.yaml` already contains the database password. Copy the example into place before you run the server or the integration tests:
+Set the ports like this:
 
-```bash
-cd shelf_server
-cp config/passwords.example.yaml config/passwords.yaml
-```
+- `config/development.yaml`: API `port` and `publicPort` 8280, Insights 8281, web 8282, database `port` 8290.
+- `docker-compose.yaml`: publish Postgres as `8290:5432` and the test database as `9290:5432`. The container still listens on 5432.
+- `config/test.yaml`: set the database `port` to 9290. Leave the API, Insights, and web ports at `0`. Those zeros let concurrent tests each take a free port. The file does not contain 8080.
+- `config/staging.yaml` and `config/production.yaml`: set the API, Insights, and web `port` values to 8280, 8281, and 8282. Leave `publicPort` at 443 and the database `port` at 5432. Those files describe a remote host, not the local Docker port.
 
 ## The dependency rule, before any feature
 
@@ -59,8 +59,8 @@ Add the packages the later chapters import. In `shelf_server/pubspec.yaml`:
 dependencies:
   serverpod: 4.0.1
   serverpod_cloud_storage: 4.0.1
-  talaria: ^0.3.7
-  talaria_serverpod: ^0.2.5
+  talaria: ^0.3.8
+  talaria_serverpod: ^0.2.6
   uuid: ^4.5.3
 ```
 

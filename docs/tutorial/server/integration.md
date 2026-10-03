@@ -12,7 +12,7 @@ Create the migration if you have not:
 serverpod create-migration
 ```
 
-`config/passwords.yaml` must exist (`cp config/passwords.example.yaml config/passwords.yaml`). Serverpod 4's test tools can use an embedded Postgres, so you do not have to start `docker compose` for `dart test`. You do start it when you want the development server.
+`config/passwords.yaml` is the file Serverpod 4.0.1 wrote when the project was created. Serverpod 4's test tools can use an embedded Postgres, so you do not have to start `docker compose` for `dart test`. You do start it when you want the development server.
 
 Create `test/integration/save_book_test.dart`:
 

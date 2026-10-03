@@ -49,15 +49,141 @@ Walk the lines.
 
 ## The test
 
-`test/unit/application/place_book_on_shelf_use_case_test.dart` uses `FakeShelfRepository` and `FakeBookRepository`. Five cases:
+`test/fakes/fake_shelf_repository.dart`:
 
-- A book and a shelf with room: the returned book's `shelfId` is the shelf id.
-- No shelf: `NotFound`.
-- No book: `NotFound`.
-- Capacity 1 and another book already on the shelf: `Conflict`. The other book is saved on the fake with `placeOnShelf` before `execute`.
-- The book already has a `shelfId`: `Conflict`, even when the target shelf has room.
+```dart
+import 'package:shelf_server/src/domain/shelf/entities/shelf.dart';
+import 'package:shelf_server/src/domain/shelf/shelf_repository.dart';
 
-None of these tests import Serverpod.
+class FakeShelfRepository implements ShelfRepository {
+  final shelves = <String, Shelf>{};
+
+  @override
+  Future<Shelf> save(Shelf shelf) async {
+    shelves[shelf.id] = shelf;
+    return shelf;
+  }
+
+  @override
+  Future<Shelf?> findById(String id) async => shelves[id];
+
+  @override
+  Future<List<Shelf>> list() async {
+    final rows = shelves.values.toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return rows;
+  }
+}
+```
+
+`test/unit/application/place_book_on_shelf_use_case_test.dart` uses that fake and `FakeBookRepository`. None of these tests import Serverpod.
+
+```dart
+import 'package:shelf_server/src/application/shelf/place_book_on_shelf_use_case.dart';
+import 'package:shelf_server/src/domain/book/entities/book.dart';
+import 'package:shelf_server/src/domain/book/value_objects/reading_status.dart';
+import 'package:shelf_server/src/domain/shared/exceptions/conflict.dart';
+import 'package:shelf_server/src/domain/shared/exceptions/not_found.dart';
+import 'package:shelf_server/src/domain/shelf/entities/shelf.dart';
+import 'package:test/test.dart';
+
+import '../../fakes/fake_book_repository.dart';
+import '../../fakes/fake_shelf_repository.dart';
+
+void main() {
+  final created = DateTime.utc(2026, 10, 3);
+
+  Book book({String? shelfId}) {
+    final createdBook = Book.create(
+      id: 'book-1',
+      title: 'The Dispossessed',
+      authorName: 'Le Guin',
+      status: ReadingStatus.unread,
+      createdAt: created,
+    );
+    return shelfId == null ? createdBook : createdBook.placeOnShelf(shelfId);
+  }
+
+  Shelf shelf({int capacity = 2}) {
+    return Shelf.create(
+      id: 'shelf-1',
+      name: 'Fiction',
+      capacity: capacity,
+      createdAt: created,
+    );
+  }
+
+  Future<PlaceBookOnShelfUseCase> useCase({
+    Book? existingBook,
+    Shelf? existingShelf,
+    List<Book> others = const [],
+  }) async {
+    final books = FakeBookRepository();
+    final shelves = FakeShelfRepository();
+    if (existingBook != null) await books.save(existingBook);
+    for (final other in others) {
+      await books.save(other);
+    }
+    if (existingShelf != null) await shelves.save(existingShelf);
+    return PlaceBookOnShelfUseCase(shelves, books);
+  }
+
+  test('places a book when the shelf has room', () async {
+    final place = await useCase(
+      existingBook: book(),
+      existingShelf: shelf(),
+    );
+    final placed = await place.execute(bookId: 'book-1', shelfId: 'shelf-1');
+    expect(placed.shelfId, 'shelf-1');
+  });
+
+  test('a missing shelf is not found', () async {
+    final place = await useCase(existingBook: book());
+    expect(
+      () => place.execute(bookId: 'book-1', shelfId: 'shelf-1'),
+      throwsA(isA<NotFound>()),
+    );
+  });
+
+  test('a missing book is not found', () async {
+    final place = await useCase(existingShelf: shelf());
+    expect(
+      () => place.execute(bookId: 'book-1', shelfId: 'shelf-1'),
+      throwsA(isA<NotFound>()),
+    );
+  });
+
+  test('a full shelf is a conflict', () async {
+    final other = Book.create(
+      id: 'book-2',
+      title: 'The Left Hand of Darkness',
+      authorName: 'Le Guin',
+      status: ReadingStatus.read,
+      createdAt: created,
+    ).placeOnShelf('shelf-1');
+    final place = await useCase(
+      existingBook: book(),
+      existingShelf: shelf(capacity: 1),
+      others: [other],
+    );
+    expect(
+      () => place.execute(bookId: 'book-1', shelfId: 'shelf-1'),
+      throwsA(isA<Conflict>()),
+    );
+  });
+
+  test('a book already on a shelf is a conflict', () async {
+    final place = await useCase(
+      existingBook: book(shelfId: 'shelf-9'),
+      existingShelf: shelf(),
+    );
+    expect(
+      () => place.execute(bookId: 'book-1', shelfId: 'shelf-1'),
+      throwsA(isA<Conflict>()),
+    );
+  });
+}
+```
 
 ## The endpoint
 
@@ -84,9 +210,81 @@ Future<BookDto> place(Session session, PlaceBookInput input) {
 }
 ```
 
-`_useCases.placeBook` is the factory in `app/use_cases.dart` from the composition chapter. Generate again so the client method `client.shelf.place` exists.
+`_useCases.placeBook` is the factory in `app/use_cases.dart`. Add it now:
 
-Add two tests to `test/integration/save_book_test.dart` inside a second `withServerpod` group. One saves a book and a shelf and expects `placed.shelfId` to equal `shelf.id`. One saves a shelf with capacity 1, places the first book, and expects `ApiConflictException` for the second. The integration test sees the wire exception. The unit test sees `Conflict`.
+```dart
+PlaceBookOnShelfUseCase placeBook(Session session) {
+  return PlaceBookOnShelfUseCase(
+    _repositories.shelves(session),
+    _repositories.books(session),
+  );
+}
+```
+
+Generate again so the client method `client.shelf.place` exists.
+
+Add two tests to `test/integration/save_book_test.dart` inside a second `withServerpod` group. The integration test sees the wire exception. The unit test sees `Conflict`.
+
+```dart
+withServerpod('Given a shelf and a book', (sessionBuilder, endpoints) {
+  test('place puts the book on the shelf', () async {
+    final book = await endpoints.book.save(
+      sessionBuilder,
+      SaveBookInput(
+        title: 'The Dispossessed',
+        authorName: 'Le Guin',
+        status: ReadingStatusWire.reading,
+      ),
+    );
+    final shelf = await endpoints.shelf.save(
+      sessionBuilder,
+      SaveShelfInput(name: 'Fiction', capacity: 2),
+    );
+
+    final placed = await endpoints.shelf.place(
+      sessionBuilder,
+      PlaceBookInput(bookId: book.id, shelfId: shelf.id),
+    );
+
+    expect(placed.shelfId, shelf.id);
+  });
+
+  test('a full shelf is a conflict', () async {
+    final shelf = await endpoints.shelf.save(
+      sessionBuilder,
+      SaveShelfInput(name: 'Fiction', capacity: 1),
+    );
+    final first = await endpoints.book.save(
+      sessionBuilder,
+      SaveBookInput(
+        title: 'The Dispossessed',
+        authorName: 'Le Guin',
+        status: ReadingStatusWire.unread,
+      ),
+    );
+    final second = await endpoints.book.save(
+      sessionBuilder,
+      SaveBookInput(
+        title: 'The Left Hand of Darkness',
+        authorName: 'Le Guin',
+        status: ReadingStatusWire.unread,
+      ),
+    );
+    await endpoints.shelf.place(
+      sessionBuilder,
+      PlaceBookInput(bookId: first.id, shelfId: shelf.id),
+    );
+
+    expect(
+      () => endpoints.shelf.place(
+        sessionBuilder,
+        PlaceBookInput(bookId: second.id, shelfId: shelf.id),
+      ),
+      throwsA(isA<ApiConflictException>()),
+    );
+  });
+});
+```
 
 ```bash
 dart test

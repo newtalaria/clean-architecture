@@ -23,13 +23,18 @@ part 'reading_status.mapper.dart';
 enum ReadingStatus { unread, reading, read }
 ```
 
-`book.dart` starts with:
+`lib/domain/book/book.dart`:
 
 ```dart
 import 'package:dart_mappable/dart_mappable.dart';
+import 'package:shelf_flutter/domain/book/book_title.dart';
+import 'package:shelf_flutter/domain/book/reading_status.dart';
+import 'package:shelf_flutter/domain/shared/conflict.dart';
+import 'package:shelf_flutter/domain/shared/validation_failure.dart';
 
 part 'book.mapper.dart';
 
+/// A book on the shelf. [create] is the only constructor that checks rules.
 @MappableClass()
 class Book with BookMappable {
   const Book({
@@ -40,23 +45,73 @@ class Book with BookMappable {
     required this.createdAt,
     this.shelfId,
   });
-  // create, placeOnShelf, and the author check match the server entity.
+
+  final String id;
+  final String title;
+  final String authorName;
+  final ReadingStatus status;
+  final DateTime createdAt;
+  final String? shelfId;
+
+  static const _authorMax = 200;
+
+  factory Book.create({
+    required String id,
+    required String title,
+    required String authorName,
+    required ReadingStatus status,
+    required DateTime createdAt,
+  }) {
+    return Book(
+      id: id,
+      title: BookTitle.parse(title).value,
+      authorName: _author(authorName),
+      status: status,
+      createdAt: createdAt.toUtc(),
+    );
+  }
+
+  Book placeOnShelf(String shelfId) {
+    if (this.shelfId != null) {
+      throw const Conflict('Book is already on a shelf');
+    }
+    return Book(
+      id: id,
+      title: title,
+      authorName: authorName,
+      status: status,
+      createdAt: createdAt,
+      shelfId: shelfId,
+    );
+  }
+
+  static String _author(String raw) {
+    final trimmed = raw.trim();
+    if (trimmed.isEmpty) {
+      throw const ValidationFailure('Author is required');
+    }
+    if (trimmed.length > _authorMax) {
+      throw const ValidationFailure('Author is too long');
+    }
+    return trimmed;
+  }
 }
 ```
 
-Copy `BookTitle`, `ValidationFailure`, `NotFound`, `Conflict`, and `BookRepository` from the server. The client repository adds one method the server port does not have:
+Copy `BookTitle`, `ValidationFailure`, `NotFound`, and `Conflict` from the server, and change the imports to `package:shelf_flutter/...`.
+
+`BookRepository` on this chapter is `save` and `list` only. `client.shelf.place` does not exist until the shelf endpoint is generated. Add `placeOnShelf` in [the place control](place-book.md), after that generate step.
 
 ```dart
+import 'package:shelf_flutter/domain/book/book.dart';
+
+/// What the screen needs stored about books. The data layer talks to Serverpod.
 abstract interface class BookRepository {
   Future<Book> save(Book book);
-  Future<List<Book>> list();
 
-  /// Calls the server use case that coordinates books and shelves.
-  Future<Book> placeOnShelf({required String bookId, required String shelfId});
+  Future<List<Book>> list();
 }
 ```
-
-That method is on the port because the screen's intent returns a book, and the server already decided the capacity rule. The Flutter use case does not load a shelf and a book and count rows. It calls this method. The data layer sends `PlaceBookInput`. You will see that split again in [Place a book on a shelf](../server/place-book.md) and [the place control](place-book.md).
 
 Generate the mapper parts:
 

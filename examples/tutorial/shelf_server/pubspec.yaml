@@ -11,8 +11,8 @@ resolution: workspace
 dependencies:
   serverpod: 4.0.1
   serverpod_cloud_storage: 4.0.1
-  talaria: ^0.3.7
-  talaria_serverpod: ^0.2.5
+  talaria: ^0.3.8
+  talaria_serverpod: ^0.2.6
   uuid: ^4.5.3
 
 dev_dependencies:

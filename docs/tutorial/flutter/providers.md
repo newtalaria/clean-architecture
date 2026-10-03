@@ -9,6 +9,16 @@ Riverpod providers are the composition root. They are written by hand. There is 
 Create `lib/app/providers.dart`. `clientProvider` throws until `main` overrides it, so a test that forgets the override fails immediately instead of opening a socket:
 
 ```dart
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shelf_client/shelf_client.dart';
+import 'package:shelf_flutter/application/book/list_books_use_case.dart';
+import 'package:shelf_flutter/application/book/save_book_use_case.dart';
+import 'package:shelf_flutter/application/ports/clock.dart';
+import 'package:shelf_flutter/application/ports/id_generator.dart';
+import 'package:shelf_flutter/data/serverpod_book_repository.dart';
+import 'package:shelf_flutter/domain/book/book_repository.dart';
+
+/// Overridden in main with the generated client.
 final clientProvider = Provider<Client>((ref) {
   throw StateError('Override clientProvider in main');
 });
@@ -16,6 +26,12 @@ final clientProvider = Provider<Client>((ref) {
 final bookRepositoryProvider = Provider<BookRepository>((ref) {
   return ServerpodBookRepository(ref.watch(clientProvider));
 });
+
+final clockProvider = Provider<Clock>((ref) => const SystemClock());
+
+final idGeneratorProvider = Provider<IdGenerator>(
+  (ref) => const UuidIdGenerator(),
+);
 
 final saveBookUseCaseProvider = Provider<SaveBookUseCase>((ref) {
   return SaveBookUseCase(

@@ -24,7 +24,7 @@ dependencies:
   http: ^1.4.0
   serverpod_flutter: 4.0.1
   shelf_client:
-  talaria_flutter: ^0.2.5
+  talaria_flutter: ^0.2.8
   uuid: ^4.5.3
 
 dev_dependencies:
@@ -67,6 +67,8 @@ The dependency rule on the client:
 | App | domain, application, data | feature pages |
 
 Protocol types stay in `data/` and in `main.dart`, where the `Client` is constructed.
+
+`flutter create` writes `test/widget_test.dart`. That file pumps `MyApp()`, and the `main.dart` you write later does not define `MyApp`. Delete `test/widget_test.dart` now. `flutter test` loads every file under `test/`.
 
 From the workspace root:
 

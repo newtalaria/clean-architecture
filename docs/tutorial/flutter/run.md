@@ -13,6 +13,7 @@ const shelfApiUrl = String.fromEnvironment(
 );
 
 Future<void> main() {
+  usePathUrlStrategy();
   return ShelfMonitoring.bootstrap(() async {
     final client = Client(
       shelfApiUrl,
@@ -30,6 +31,8 @@ Future<void> main() {
   });
 }
 ```
+
+`usePathUrlStrategy()` runs before `runApp`, so a web session uses `/shelves` in the address bar. Import it from `package:flutter_web_plugins/url_strategy.dart`.
 
 `ShelfMonitoring.bootstrap` calls `WidgetsFlutterBinding.ensureInitialized()` and then `startApp`. When `TALARIA_API_KEY` is empty, that happens in the root zone. You will put both calls inside one zone in the Talaria chapter. The structure is already the method the chapter fills in. Copy it from the finished `lib/bootstrap/talaria_monitoring.dart` when you get there, or leave the empty-key path in place now. An empty key must not call `TalariaFlutter.init`.
 

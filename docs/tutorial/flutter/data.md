@@ -6,20 +6,51 @@ tags: [clean-architecture, tutorial, flutter]
 
 `data/` is the only folder that imports `BookDto` and `SaveBookInput`, aside from `main.dart` constructing `Client`. A page that imports `package:shelf_client` has skipped the boundary.
 
-Create `lib/data/protocol_mappers.dart`. `toBook` reads `dto.id.toString()` and `ReadingStatus.values.byName(dto.status.name)`. `toSaveBookInput` writes `ReadingStatusWire.values.byName(book.status.name)` and does not send `book.id`. `throwDomain` turns the three generated exceptions back into `ValidationFailure`, `NotFound`, and `Conflict`, and returns `Never` so the repository methods can call it from a `catch` and still type-check:
+Create `lib/data/protocol_mappers.dart`. `toBook` reads `dto.id.toString()` and `ReadingStatus.values.byName(dto.status.name)`. `toSaveBookInput` writes `ReadingStatusWire.values.byName(book.status.name)` and does not send `book.id`. `throwDomain` turns the three generated exceptions back into `ValidationFailure`, `NotFound`, and `Conflict`, and returns `Never` so the repository methods can call it from a `catch` and still type-check. `toShelf` and `toSaveShelfInput` are added with the shelf screen, after `serverpod generate` has written those types.
 
 ```dart
-Never throwDomain(Object error) {
-  if (error is ApiValidationException) {
-    throw ValidationFailure(error.message);
+import 'package:shelf_client/shelf_client.dart';
+import 'package:shelf_flutter/domain/book/book.dart';
+import 'package:shelf_flutter/domain/book/reading_status.dart';
+import 'package:shelf_flutter/domain/shared/conflict.dart';
+import 'package:shelf_flutter/domain/shared/not_found.dart';
+import 'package:shelf_flutter/domain/shared/validation_failure.dart';
+
+/// Protocol types in, domain types out. This file is the wire boundary.
+class ProtocolMappers {
+  const ProtocolMappers();
+
+  Book toBook(BookDto dto) {
+    return Book(
+      id: dto.id.toString(),
+      title: dto.title,
+      authorName: dto.authorName,
+      status: ReadingStatus.values.byName(dto.status.name),
+      shelfId: dto.shelfId?.toString(),
+      createdAt: dto.createdAt,
+    );
   }
-  if (error is ApiNotFoundException) {
-    throw NotFound(error.message);
+
+  SaveBookInput toSaveBookInput(Book book) {
+    return SaveBookInput(
+      title: book.title,
+      authorName: book.authorName,
+      status: ReadingStatusWire.values.byName(book.status.name),
+    );
   }
-  if (error is ApiConflictException) {
-    throw Conflict(error.message);
+
+  Never throwDomain(Object error) {
+    if (error is ApiValidationException) {
+      throw ValidationFailure(error.message);
+    }
+    if (error is ApiNotFoundException) {
+      throw NotFound(error.message);
+    }
+    if (error is ApiConflictException) {
+      throw Conflict(error.message);
+    }
+    throw error;
   }
-  throw error;
 }
 ```
 
@@ -28,6 +59,11 @@ The page catches the domain types. It does not catch `ApiValidationException`. T
 Create `lib/data/serverpod_book_repository.dart`:
 
 ```dart
+import 'package:shelf_client/shelf_client.dart';
+import 'package:shelf_flutter/data/protocol_mappers.dart';
+import 'package:shelf_flutter/domain/book/book.dart';
+import 'package:shelf_flutter/domain/book/book_repository.dart';
+
 class ServerpodBookRepository implements BookRepository {
   ServerpodBookRepository(this._client, {ProtocolMappers? mappers})
     : _mappers = mappers ?? const ProtocolMappers();
@@ -50,29 +86,9 @@ class ServerpodBookRepository implements BookRepository {
     final response = await _client.book.list();
     return response.books.map(_mappers.toBook).toList();
   }
-
-  @override
-  Future<Book> placeOnShelf({
-    required String bookId,
-    required String shelfId,
-  }) async {
-    try {
-      final dto = await _client.shelf.place(
-        PlaceBookInput(
-          bookId: UuidValue.fromString(bookId),
-          shelfId: UuidValue.fromString(shelfId),
-        ),
-      );
-      return _mappers.toBook(dto);
-    } catch (error) {
-      _mappers.throwDomain(error);
-    }
-  }
 }
 ```
 
-`placeOnShelf` calls `client.shelf`, not `client.book`. The server method lives on the shelf endpoint because the use case lives in `application/shelf/`. The client repository is still a book repository because the method returns a `Book`. The data layer is allowed to call either endpoint. The presentation layer is not allowed to call either endpoint.
-
-`UuidValue` comes from `package:shelf_client`. It does not appear in `domain/`.
+This file implements `save` and `list` only. `placeOnShelf` calls `client.shelf.place`, and that method does not exist until [Place a book on a shelf](../server/place-book.md) has been generated. Add the method in [the place control](place-book.md).
 
 Next: [the providers](providers.md).

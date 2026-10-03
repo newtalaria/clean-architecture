@@ -27,34 +27,36 @@ class Repositories {
 
 If you are still on the book slice and have not written the shelf classes, leave `shelves` out until that chapter. The finished file has both. The method returns the interface type. Callers in `use_cases.dart` never mention `BookRepositoryImpl`.
 
-Create `lib/src/app/use_cases.dart`. Each method builds one use case for one session:
+Create `lib/src/app/use_cases.dart`. On the book slice the class only builds book use cases. `saveShelf`, `listShelves`, and `placeBook` are added in the shelves and place chapters. `placeBook` is the factory that passes two ports. That factory is still wiring. The rule that a shelf can be full lives in the use case, which you write in [Place a book on a shelf](place-book.md).
 
 ```dart
-SaveBookUseCase saveBook(Session session) {
-  return SaveBookUseCase(
-    _repositories.books(session),
-    clock: const SystemClock(),
-    ids: const UuidIdGenerator(),
-  );
-}
+import 'package:serverpod/serverpod.dart';
+import 'package:shelf_server/src/application/book/list_books_use_case.dart';
+import 'package:shelf_server/src/application/book/save_book_use_case.dart';
+import 'package:shelf_server/src/application/ports/clock.dart';
+import 'package:shelf_server/src/application/ports/id_generator.dart';
 
-ListBooksUseCase listBooks(Session session) {
-  return ListBooksUseCase(_repositories.books(session));
+import 'repositories.dart';
+
+/// Factories only. The use case classes stay under application/.
+class UseCases {
+  const UseCases(this._repositories);
+
+  final Repositories _repositories;
+
+  SaveBookUseCase saveBook(Session session) {
+    return SaveBookUseCase(
+      _repositories.books(session),
+      clock: const SystemClock(),
+      ids: const UuidIdGenerator(),
+    );
+  }
+
+  ListBooksUseCase listBooks(Session session) {
+    return ListBooksUseCase(_repositories.books(session));
+  }
 }
 ```
-
-The shelf factories are the same shape: `saveShelf`, `listShelves`, and later `placeBook`. `placeBook` is the factory that passes two ports:
-
-```dart
-PlaceBookOnShelfUseCase placeBook(Session session) {
-  return PlaceBookOnShelfUseCase(
-    _repositories.shelves(session),
-    _repositories.books(session),
-  );
-}
-```
-
-That factory is still wiring. The rule that a shelf can be full lives in the use case, which you write in [Place a book on a shelf](place-book.md).
 
 Create `lib/src/app/di.dart`:
 

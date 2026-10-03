@@ -18,7 +18,36 @@ class PlaceBookOnShelfUseCase {
 }
 ```
 
-It takes `BookRepository` only. It does not take `ShelfRepository`. If it counted books on the client, the capacity rule would exist twice, and a full shelf could still be accepted by a stale list. `ServerpodBookRepository.placeOnShelf` calls `client.shelf.place` and maps `ApiConflictException` to `Conflict`.
+It takes `BookRepository` only. It does not take `ShelfRepository`. If it counted books on the client, the capacity rule would exist twice, and a full shelf could still be accepted by a stale list.
+
+Add `placeOnShelf` to `BookRepository` now. The shelf endpoint exists, so `client.shelf.place` compiles.
+
+```dart
+/// Calls the server use case that coordinates books and shelves.
+Future<Book> placeOnShelf({required String bookId, required String shelfId});
+```
+
+`ServerpodBookRepository.placeOnShelf` calls `client.shelf.place` and maps `ApiConflictException` to `Conflict` through `throwDomain`. `UuidValue` comes from `package:shelf_client`.
+
+```dart
+@override
+Future<Book> placeOnShelf({
+  required String bookId,
+  required String shelfId,
+}) async {
+  try {
+    final dto = await _client.shelf.place(
+      PlaceBookInput(
+        bookId: UuidValue.fromString(bookId),
+        shelfId: UuidValue.fromString(shelfId),
+      ),
+    );
+    return _mappers.toBook(dto);
+  } catch (error) {
+    _mappers.throwDomain(error);
+  }
+}
+```
 
 `placeBookOnShelfUseCaseProvider` watches `bookRepositoryProvider`.
 

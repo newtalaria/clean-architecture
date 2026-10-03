@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:serverpod_flutter/serverpod_flutter.dart';
@@ -13,6 +14,7 @@ const shelfApiUrl = String.fromEnvironment(
 );
 
 Future<void> main() {
+  usePathUrlStrategy();
   return ShelfMonitoring.bootstrap(() async {
     final client = Client(
       shelfApiUrl,

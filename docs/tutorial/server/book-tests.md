@@ -63,9 +63,122 @@ class FakeBookRepository implements BookRepository {
 
 Create `test/unit/domain/book_test.dart`. It constructs `Book` directly. It does not construct a use case.
 
-The four cases are: trim the title and the author, reject a blank title, reject a title past `BookTitle.maxLength`, and reject `placeOnShelf` the second time. A blank title expects `isA<ValidationFailure>()`. A second shelf expects `isA<Conflict>()`.
+```dart
+import 'package:shelf_server/src/domain/book/entities/book.dart';
+import 'package:shelf_server/src/domain/book/value_objects/book_title.dart';
+import 'package:shelf_server/src/domain/book/value_objects/reading_status.dart';
+import 'package:shelf_server/src/domain/shared/exceptions/conflict.dart';
+import 'package:shelf_server/src/domain/shared/exceptions/validation_failure.dart';
+import 'package:test/test.dart';
 
-Create `test/unit/application/save_book_use_case_test.dart`. Build `SaveBookUseCase` with the fake, `FixedClock(DateTime.utc(2026, 10, 3, 12))`, and `SequenceIds`. Execute a command whose title is `' The Dispossessed '`. Expect the stored title `'The Dispossessed'`, the id above, and `createdAt` equal to that fixed instant. Then execute a command whose title is `' '` and expect `ValidationFailure` with `books` still empty. The use case must not catch the failure and return null. The test sees the throw, and the map stays empty because `save` never ran.
+void main() {
+  final created = DateTime.utc(2026, 10, 3);
+
+  test('create trims the title and the author', () {
+    final book = Book.create(
+      id: 'b1',
+      title: '  The Dispossessed  ',
+      authorName: '  Ursula K. Le Guin ',
+      status: ReadingStatus.unread,
+      createdAt: created,
+    );
+    expect(book.title, 'The Dispossessed');
+    expect(book.authorName, 'Ursula K. Le Guin');
+    expect(book.shelfId, isNull);
+  });
+
+  test('a blank title is rejected', () {
+    expect(
+      () => Book.create(
+        id: 'b1',
+        title: '   ',
+        authorName: 'Le Guin',
+        status: ReadingStatus.unread,
+        createdAt: created,
+      ),
+      throwsA(isA<ValidationFailure>()),
+    );
+  });
+
+  test('a title past the limit is rejected', () {
+    expect(
+      () => BookTitle.parse('a' * (BookTitle.maxLength + 1)),
+      throwsA(isA<ValidationFailure>()),
+    );
+  });
+
+  test('a book can be placed once', () {
+    final book = Book.create(
+      id: 'b1',
+      title: 'The Dispossessed',
+      authorName: 'Le Guin',
+      status: ReadingStatus.reading,
+      createdAt: created,
+    );
+    final placed = book.placeOnShelf('shelf-1');
+    expect(placed.shelfId, 'shelf-1');
+    expect(() => placed.placeOnShelf('shelf-2'), throwsA(isA<Conflict>()));
+  });
+}
+```
+
+Create `test/unit/application/save_book_use_case_test.dart`. The use case must not catch the failure and return null. The test sees the throw, and the map stays empty because `save` never ran.
+
+```dart
+import 'package:shelf_server/src/application/book/save_book_command.dart';
+import 'package:shelf_server/src/application/book/save_book_use_case.dart';
+import 'package:shelf_server/src/domain/book/value_objects/reading_status.dart';
+import 'package:shelf_server/src/domain/shared/exceptions/validation_failure.dart';
+import 'package:test/test.dart';
+
+import '../../fakes/fake_book_repository.dart';
+
+void main() {
+  test('saves a book with the injected clock and id', () async {
+    final books = FakeBookRepository();
+    final ids = SequenceIds();
+    final useCase = SaveBookUseCase(
+      books,
+      clock: FixedClock(DateTime.utc(2026, 10, 3, 12)),
+      ids: ids,
+    );
+
+    final saved = await useCase.execute(
+      const SaveBookCommand(
+        title: ' The Dispossessed ',
+        authorName: 'Le Guin',
+        status: ReadingStatus.unread,
+      ),
+    );
+
+    expect(saved.id, '00000000-0000-4000-8000-000000000001');
+    expect(saved.title, 'The Dispossessed');
+    expect(saved.createdAt, DateTime.utc(2026, 10, 3, 12));
+    expect(books.books, hasLength(1));
+  });
+
+  test('a blank title does not write', () async {
+    final books = FakeBookRepository();
+    final useCase = SaveBookUseCase(
+      books,
+      clock: FixedClock(DateTime.utc(2026, 10, 3)),
+      ids: SequenceIds(),
+    );
+
+    expect(
+      () => useCase.execute(
+        const SaveBookCommand(
+          title: ' ',
+          authorName: 'Le Guin',
+          status: ReadingStatus.unread,
+        ),
+      ),
+      throwsA(isA<ValidationFailure>()),
+    );
+    expect(books.books, isEmpty);
+  });
+}
+```
 
 From `shelf_server`:
 
