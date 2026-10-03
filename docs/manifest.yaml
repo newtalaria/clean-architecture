@@ -245,3 +245,189 @@ pages:
     title: Talaria
     description: Initialize talaria_serverpod when TALARIA_API_KEY is set, and attach it on the Serverpod constructor.
     tags: [clean-architecture, serverpod]
+
+  - id: flutter
+    path: flutter/README.md
+    title: Flutter
+    description: One notes client, built three times. Pick hybrid, layer-first, or feature-first, then instrument it.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-hy
+    path: flutter/hybrid/README.md
+    title: Hybrid
+    description: Domain, application, and data stay horizontal. The notes screen is a feature. The tile does not import Riverpod.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-hy-pros-and-cons
+    path: flutter/hybrid/pros-and-cons.md
+    title: Pros and cons
+    description: What you gain when the domain stays shared and screens are local, and the two rules you have to remember.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-hy-when-to-use
+    path: flutter/hybrid/when-to-use.md
+    title: When to use it
+    description: Choose hybrid when most changes are screens and the domain is still shared.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-hy-domain
+    path: flutter/hybrid/domain.md
+    title: Domain
+    description: The note entity and the repository port, with no Flutter import.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-hy-application
+    path: flutter/hybrid/application.md
+    title: Application
+    description: SaveNoteUseCase takes the repository port, a clock, and an id generator.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-hy-data
+    path: flutter/hybrid/data.md
+    title: Data
+    description: An in-memory store, a row type, and a mapper. This is where the API client would sit.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-hy-presentation
+    path: flutter/hybrid/presentation.md
+    title: Presentation
+    description: A Riverpod notifier calls the use case. The note tile does not import Riverpod. Beamer reports the screen.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-hy-composition
+    path: flutter/hybrid/composition.md
+    title: Composition root
+    description: app/providers.dart is the only file that constructs NoteRepositoryImpl.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-hy-tests
+    path: flutter/hybrid/tests.md
+    title: Tests
+    description: A domain test, a fake-repository use case test, a page test, and a tile test with no provider scope.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-hy-talaria
+    path: flutter/hybrid/talaria.md
+    title: Talaria
+    description: Initialize talaria_flutter when TALARIA_API_KEY is set, in one zone with runApp.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-lf
+    path: flutter/layer-first/README.md
+    title: Layer-first
+    description: The feature name repeats inside every layer, including the screen and the note tile.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-lf-pros-and-cons
+    path: flutter/layer-first/pros-and-cons.md
+    title: Pros and cons
+    description: One folder rule for every layer, and the cost of keeping the tile beside the page.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-lf-when-to-use
+    path: flutter/layer-first/when-to-use.md
+    title: When to use it
+    description: Choose layer-first when the team already thinks in layers and repeating the feature name is a help.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-lf-domain
+    path: flutter/layer-first/domain.md
+    title: Domain
+    description: The note entity and the repository port, with no Flutter import.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-lf-application
+    path: flutter/layer-first/application.md
+    title: Application
+    description: SaveNoteUseCase takes the repository port, a clock, and an id generator.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-lf-data
+    path: flutter/layer-first/data.md
+    title: Data
+    description: An in-memory store, a row type, and a mapper. This is where the API client would sit.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-lf-presentation
+    path: flutter/layer-first/presentation.md
+    title: Presentation
+    description: Page, notifier, and tile live in presentation/notes. The tile does not import Riverpod.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-lf-composition
+    path: flutter/layer-first/composition.md
+    title: Composition root
+    description: app/providers.dart is the only file that constructs NoteRepositoryImpl.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-lf-tests
+    path: flutter/layer-first/tests.md
+    title: Tests
+    description: A domain test, a fake-repository use case test, a page test, and a tile test with no provider scope.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-lf-talaria
+    path: flutter/layer-first/talaria.md
+    title: Talaria
+    description: Initialize talaria_flutter when TALARIA_API_KEY is set, in one zone with runApp.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-ff
+    path: flutter/feature-first/README.md
+    title: Feature-first
+    description: features/notes holds every layer. app/ is the only place that wires the repository.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-ff-pros-and-cons
+    path: flutter/feature-first/pros-and-cons.md
+    title: Pros and cons
+    description: One directory is the feature. Shared failures live in a small kernel, and the shell stays in app/.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-ff-when-to-use
+    path: flutter/feature-first/when-to-use.md
+    title: When to use it
+    description: Choose feature-first when a feature should be deletable as one directory.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-ff-domain
+    path: flutter/feature-first/domain.md
+    title: Domain
+    description: The note entity and the repository port, with no Flutter import.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-ff-application
+    path: flutter/feature-first/application.md
+    title: Application
+    description: SaveNoteUseCase takes the repository port, a clock, and an id generator.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-ff-data
+    path: flutter/feature-first/data.md
+    title: Data
+    description: An in-memory store, a row type, and a mapper. This is where the API client would sit.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-ff-presentation
+    path: flutter/feature-first/presentation.md
+    title: Presentation
+    description: Page, notifier, and tile live in the feature. The shell router lives in app/router.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-ff-composition
+    path: flutter/feature-first/composition.md
+    title: Composition root
+    description: app/providers.dart is the only file that constructs NoteRepositoryImpl.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-ff-tests
+    path: flutter/feature-first/tests.md
+    title: Tests
+    description: A domain test, a fake-repository use case test, a page test, and a tile test with no provider scope.
+    tags: [clean-architecture, flutter]
+
+  - id: fl-ff-talaria
+    path: flutter/feature-first/talaria.md
+    title: Talaria
+    description: Initialize talaria_flutter when TALARIA_API_KEY is set, in one zone with runApp.
+    tags: [clean-architecture, flutter]

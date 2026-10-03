@@ -20,5 +20,6 @@ The running example is a notes application. A note has an identity, a title, and
 ## Courses
 
 - [Serverpod](serverpod/README.md) — the same notes API, built layer-first, feature-first, and hybrid, then instrumented with `talaria_serverpod`
+- [Flutter](flutter/README.md) — the same notes client, built hybrid, layer-first, and feature-first, then instrumented with `talaria_flutter`
 
-Flutter and the skills pack are still to come. The book above applies in any language. The Serverpod course is where the folders become Dart.
+The skills pack is still to come. The book above applies in any language. The courses are where the folders become Dart.
