@@ -37,4 +37,4 @@ lib/app/providers.dart
 
 - Use cases stay in `application/<feature>/`. `presentation/<feature>/save_note_use_case.dart` couples the workflow to the screen or the endpoint.
 - The composition root stays one place. A new screen adds a feature folder. It does not add a new top-level layer.
-- Presentation imports use-case providers from `app/`. It does not import `*RepositoryImpl`.
+- The notifier imports use-case providers from `app/`. The page watches the screen provider. Neither imports `*RepositoryImpl`.

@@ -4,7 +4,7 @@ description: An in-memory store, a row type, and a mapper. This is where the API
 tags: [clean-architecture, flutter]
 ---
 
-`lib/data/notes/`. `NoteStore` stands in for the API client a screen would call. The row keeps `createdAtMicros`. The entity keeps a `DateTime`. The mapper is the boundary.
+`lib/data/notes/`. `NoteStore` is an in-memory list of rows. It stands where an API client would sit. The repository does not call HTTP. The wrapped client in [Composition root](composition.md) is ready for that call. The row keeps `createdAtMicros`. The entity keeps a `DateTime`.
 
 ```dart
 factory NoteRow.fromNote(Note note) {
@@ -17,8 +17,10 @@ factory NoteRow.fromNote(Note note) {
 }
 ```
 
-`NoteRepositoryImpl` writes rows and reads them back as notes. The files are [`lib/data/notes/note_row.dart`](https://github.com/newtalaria/clean-architecture/blob/main/examples/flutter/hybrid/lib/data/notes/note_row.dart) and [`lib/data/notes/note_repository_impl.dart`](https://github.com/newtalaria/clean-architecture/blob/main/examples/flutter/hybrid/lib/data/notes/note_repository_impl.dart).
+`save` appends a row and returns nothing. `findAll` maps each row with `toNote`, which uses the `Note` constructor. Rows here were written after `Note.create`, so the list keeps a title the domain already accepted. A store that can hold a row `create` would refuse should follow [Infrastructure](../../layers/infrastructure.md): run the invariant on load, or fail the load.
 
-A production client would perform the same mapping at the edge of the HTTP or Serverpod call. This sample keeps the store in memory so `flutter test` has no server to start. The HTTP client the app would wrap still belongs to the composition root, covered in [Composition root](composition.md).
+The files are [`lib/data/notes/note_row.dart`](https://github.com/newtalaria/clean-architecture/blob/main/examples/flutter/hybrid/lib/data/notes/note_row.dart) and [`lib/data/notes/note_repository_impl.dart`](https://github.com/newtalaria/clean-architecture/blob/main/examples/flutter/hybrid/lib/data/notes/note_repository_impl.dart).
+
+The same mapping sits at the edge of an HTTP or Serverpod call when the store is no longer memory. `flutter test` starts no server because the list is the store.
 
 Next: [Presentation](presentation.md).

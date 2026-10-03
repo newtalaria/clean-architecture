@@ -36,7 +36,7 @@ The rule is about **imports**, not about the order of calls at runtime. A use ca
 
 An entity is a business object with an identity and a lifecycle. A note is an entity: once it exists, later edits are still the same note. The rules that make a note valid live on the entity, or in a value object it holds.
 
-A value object has no identity. Two titles with the same characters are the same title. Put an invariant there when breaking it would make the object meaningless: a title that cannot be blank, an email that must contain a domain.
+A value object has no identity. Two titles with the same characters are the same title. Put the invariant there when breaking it would make the object meaningless and more than one entity needs the rule: a `Title` that cannot be blank, an email that must contain a domain. A single check that only a note needs can stay on `Note.create`. Extract the value object when a second entity needs the same check.
 
 ```text
 Note
@@ -68,7 +68,8 @@ A port is an interface the inner ring declares because it needs something from t
 ```text
 port NoteRepository
   save(note) -> note
-  find(id) -> note or nothing
+  findById(id) -> note or nothing
+  findAll() -> notes
 
 adapter SqlNoteRepository implements NoteRepository
   save(note):

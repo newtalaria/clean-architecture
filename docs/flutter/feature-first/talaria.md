@@ -6,9 +6,9 @@ tags: [clean-architecture, flutter]
 
 Instrumentation is an adapter. It is constructed in the bootstrap, next to the composition root, and it stays out of `Note`, `SaveNoteUseCase`, and the note tile.
 
-[`lib/bootstrap/talaria_monitoring.dart`](https://github.com/newtalaria/clean-architecture/blob/main/examples/flutter/feature_first/lib/bootstrap/talaria_monitoring.dart) starts the client only when a key is present. The sample reads `TALARIA_API_KEY` from `--dart-define`. An empty value leaves the SDK off.
+[`lib/bootstrap/talaria_monitoring.dart`](https://github.com/newtalaria/clean-architecture/blob/main/examples/flutter/feature_first/lib/bootstrap/talaria_monitoring.dart) starts the client only when a key is present. The sample reads `TALARIA_API_KEY` from `--dart-define`. An empty or blank value leaves the SDK off. `shouldInit` trims the key first.
 
-`bootstrap` is the entry the dashboard uses. `WidgetsFlutterBinding.ensureInitialized` and `runApp` share one zone. Flutter reports a zone mismatch when the binding is created outside the zone that later calls `runApp`.
+`bootstrap` is the entrypoint. `WidgetsFlutterBinding.ensureInitialized` and `runApp` share one zone. Flutter reports a zone mismatch when the binding is created outside the zone that later calls `runApp`.
 
 ```dart
 static Future<void> bootstrap(Future<void> Function() startApp) {
@@ -57,6 +57,8 @@ builder: (context, child) {
 ```
 
 `TalariaScreenCapture` records taps, scroll depth, and an on-request snapshot. It belongs at the top of the tree, around the child `MaterialApp.router` builds.
+
+`test/unit/monitoring_test.dart` checks the empty key and the no-client returns. The [tests](tests.md) page lists it with the others.
 
 The package is `talaria_flutter`, already in this example's `pubspec.yaml`. Pass the key when you want the SDK on:
 

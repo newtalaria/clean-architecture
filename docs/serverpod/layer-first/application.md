@@ -6,7 +6,7 @@ tags: [clean-architecture, serverpod, layer-first]
 
 The use case lives at `lib/src/application/notes/`. Ports that are not domain concepts, the clock and the id generator, live at `lib/src/application/ports/` so every feature's workflows can share them.
 
-`SaveNoteUseCase.execute` does one thing. It asks `Note.create` for a note, then `NoteRepository.save`. It does not catch `ValidationFailure`. Presentation maps that failure.
+`SaveNoteUseCase.execute` does one thing. It asks `Note.create` for a note, then returns whatever `NoteRepository.save` returns. The adapter reads the row back, so the caller sees the timestamp that survived `createdAtMicros`. The use case does not catch `ValidationFailure`. Presentation maps that failure.
 
 ```dart
 Future<Note> execute({required String title, required String body}) {

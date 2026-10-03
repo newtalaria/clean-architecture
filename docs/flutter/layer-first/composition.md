@@ -4,9 +4,9 @@ description: app/providers.dart is the only file that constructs NoteRepositoryI
 tags: [clean-architecture, flutter]
 ---
 
-`lib/app/providers.dart` is the only file that constructs `NoteRepositoryImpl`. Presentation imports the use-case providers. It does not import `data/notes/note_repository_impl.dart`.
+`lib/app/providers.dart` is the only file that constructs `NoteRepositoryImpl`. The notifier imports that file and reads the use-case providers. The page imports the controller and the tile.
 
-`main.dart` overrides the HTTP client provider. The store stays in memory so `flutter test` does not need a server.
+`main.dart` overrides the HTTP client provider with `NotesMonitoring.httpClient()`. That method returns `Talaria.wrapHttpClient` when a key is set, and a plain `http.Client` otherwise. The notes repository takes `NoteStore`. The store stays in memory so `flutter test` does not need a server.
 
 ```dart
 final noteRepositoryProvider = Provider<NoteRepository>((ref) {

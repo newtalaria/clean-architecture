@@ -1,6 +1,6 @@
 ---
 title: Feature-first
-description: Feature-first notes client. Providers are hand-written. The tile does not import Riverpod.
+description: features/notes holds every layer. The shell router and the composition root stay in app/.
 tags: [clean-architecture, flutter]
 ---
 

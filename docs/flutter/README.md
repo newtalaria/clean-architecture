@@ -6,7 +6,7 @@ tags: [clean-architecture, flutter]
 
 The [book](../README.md) keeps the dependency rule the same in every layout. This course builds that rule as a Flutter notes client, three times, so you can diff the trees. Each app saves a note and lists notes. A late chapter in each track adds `talaria_flutter`.
 
-Providers are hand-written Riverpod 3. There is no `riverpod_annotation` and no `build_runner` step, so `flutter test` is the whole check. Entities are plain Dart. Beamer is the router adapter: a location builds the page and reports the screen. The repository keeps notes in memory, in the place an API client would sit, so the tests do not need a backend.
+Providers are written by hand in Riverpod 3. `flutter test` is the whole check, with no code generator for providers. Entities are plain Dart. Beamer is the router adapter: a location builds the page and reports the screen. Notes are kept in memory, where an API client would sit, so the tests do not need a backend. `main` still wraps an HTTP client when `TALARIA_API_KEY` is set. The notes repository does not call it. That client is the hook a real API call would use.
 
 ## Pick a track
 
@@ -20,4 +20,4 @@ Providers are hand-written Riverpod 3. There is no `riverpod_annotation` and no 
 - [Layer-first](layer-first/README.md) — top folders are the layers.
 - [Feature-first](feature-first/README.md) — one folder is the whole client feature.
 
-Read one track to the end. Then open the other two trees and diff `save_note_use_case.dart`. The use case is the same. The path is the variable.
+Read one track to the end. Then open the other two trees and diff `save_note_use_case.dart`. The method asks `Note.create` for a note and `NoteRepository.save` to store it, then returns the note it built. `Note.create` trims the title and the body. A blank title throws `ValidationFailure` with the message `Title is required`, and the page shows that string under the form. The [book](../layers/domain.md) calls the same failure `InvalidTitle`. The path of the file is the variable.

@@ -6,7 +6,7 @@ tags: [clean-architecture, serverpod, feature-first]
 
 The use case lives at `lib/src/features/notes/application/`. The clock and the id generator are ports under that same application folder. They are not a top-level `application/ports` shared with other features. A second feature that needs a clock either duplicates the port or lifts it into `shared/` on purpose.
 
-`SaveNoteUseCase.execute` does one thing. It asks `Note.create` for a note, then `NoteRepository.save`. It does not catch `ValidationFailure`. Presentation maps that failure.
+`SaveNoteUseCase.execute` does one thing. It asks `Note.create` for a note, then returns whatever `NoteRepository.save` returns. The adapter reads the row back, so the caller sees the timestamp that survived `createdAtMicros`. The use case does not catch `ValidationFailure`. Presentation maps that failure.
 
 ```dart
 Future<Note> execute({required String title, required String body}) {

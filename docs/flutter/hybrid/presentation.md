@@ -23,8 +23,11 @@ Future<String?> save(String title, String body) async {
 }
 ```
 
-The page shows that message under the form. A blank title never reaches the store.
+`null` means the list state was replaced and the page clears the fields. A string means the form shows that message and the list stays as it was. A blank title never reaches the store.
 
-The files are [`lib/presentation/features/notes/notes_page.dart`](https://github.com/newtalaria/clean-architecture/blob/main/examples/flutter/hybrid/lib/presentation/features/notes/notes_page.dart) and [`lib/presentation/features/notes/notes_controller.dart`](https://github.com/newtalaria/clean-architecture/blob/main/examples/flutter/hybrid/lib/presentation/features/notes/notes_controller.dart) and [`lib/ui/note_tile.dart`](https://github.com/newtalaria/clean-architecture/blob/main/examples/flutter/hybrid/lib/ui/note_tile.dart) and [`lib/presentation/router/notes_location.dart`](https://github.com/newtalaria/clean-architecture/blob/main/examples/flutter/hybrid/lib/presentation/router/notes_location.dart).
+- [`lib/presentation/features/notes/notes_page.dart`](https://github.com/newtalaria/clean-architecture/blob/main/examples/flutter/hybrid/lib/presentation/features/notes/notes_page.dart) watches the provider and draws the form
+- [`lib/presentation/features/notes/notes_controller.dart`](https://github.com/newtalaria/clean-architecture/blob/main/examples/flutter/hybrid/lib/presentation/features/notes/notes_controller.dart) calls the use cases
+- [`lib/ui/note_tile.dart`](https://github.com/newtalaria/clean-architecture/blob/main/examples/flutter/hybrid/lib/ui/note_tile.dart) takes a title and a body
+- [`lib/presentation/router/notes_location.dart`](https://github.com/newtalaria/clean-architecture/blob/main/examples/flutter/hybrid/lib/presentation/router/notes_location.dart) builds the page and reports the screen
 
 Next: [Composition root](composition.md).

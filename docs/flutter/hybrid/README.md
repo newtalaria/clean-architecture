@@ -1,12 +1,12 @@
 ---
 title: Hybrid
-description: Hybrid notes client. Providers are hand-written. The tile does not import Riverpod.
+description: Shared domain and application, a feature screen, and a presentational tile that does not import Riverpod.
 tags: [clean-architecture, flutter]
 ---
 
-The [chooser](../README.md) puts this track first because it is the layout to copy when the domain is shared and the screens are not. Domain, application, and data stay horizontal. The notes screen is a feature folder. The note tile is presentational and does not import Riverpod.
+The [chooser](../README.md) puts this track first because it is the layout to copy when the domain is shared and the screens are not.
 
-This tree follows the customer dashboard: `domain/`, `application/`, `data/`, `presentation/features/notes/`, `ui/`, and `app/providers.dart` as the composition root. Beamer lives in `presentation/router/` and is the router adapter.
+`domain/`, `application/`, and `data/` stay horizontal. The screen is `presentation/features/notes/`. `ui/note_tile.dart` imports Flutter only. `app/providers.dart` is the composition root. Beamer lives in `presentation/router/` and is the router adapter.
 
 ```text
 lib/domain/notes/

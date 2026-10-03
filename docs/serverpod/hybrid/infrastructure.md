@@ -6,7 +6,7 @@ tags: [clean-architecture, serverpod, hybrid]
 
 The adapter lives at `lib/src/infra/notes/`, shared and horizontal. A second feature that stores notebooks adds `infra/notebooks/`. It does not hide a second note repository inside a presentation folder.
 
-`NoteRow` is the persistence model. It stores `createdAtMicros` instead of a `DateTime`, so the row is not a note with a different name. `NoteMapper.toRow` and `toNote` are the only functions that see both.
+`NoteRow` is the persistence model. It stores `createdAtMicros` instead of a `DateTime`, so the row is not a note with a different name. `NoteMapper.toRow` and `toNote` are the only functions that see both. `toNote` rebuilds with the `Note` constructor. Rows here were written by `save` after `Note.create`, so the round trip keeps a title the domain already accepted. A store that can hold a row `create` would refuse should follow [Infrastructure](../../layers/infrastructure.md): run the invariant on load, or fail the load.
 
 `NoteStore` is a map of rows. `NoteRepositoryImpl` takes that store in its constructor, the way a Serverpod repository impl takes a `Session`. The composition root builds a new store per graph. Do not cache the impl on a process-wide singleton. The next request would share it.
 

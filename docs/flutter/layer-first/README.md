@@ -1,6 +1,6 @@
 ---
 title: Layer-first
-description: Layer-first notes client. Providers are hand-written. The tile does not import Riverpod.
+description: The feature name repeats inside every layer, including the page, the notifier, and the tile.
 tags: [clean-architecture, flutter]
 ---
 

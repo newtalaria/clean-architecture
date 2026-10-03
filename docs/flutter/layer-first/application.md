@@ -6,7 +6,9 @@ tags: [clean-architecture, flutter]
 
 `lib/application/notes/`, next to the domain feature of the same name.
 
-`SaveNoteUseCase.execute` builds a note, then asks the port to save it. The clock and the id generator are injected so a test can pin both. `ListNotesUseCase` returns whatever the port has stored.
+`SaveNoteUseCase.execute` builds a note with `Note.create`, asks the port to save it, and returns that note. The repository's `save` returns nothing, so the caller sees the `DateTime` the use case passed in. `ListNotesUseCase` returns whatever `findAll` mapped from the rows.
+
+The clock and the id generator are constructor arguments, so a test can pin both. A blank title throws from `Note.create`. The notifier turns that failure into the string under the form.
 
 ```dart
 Future<Note> execute({required String title, required String body}) async {
@@ -23,6 +25,6 @@ Future<Note> execute({required String title, required String body}) async {
 
 The file is [`lib/application/notes/save_note_use_case.dart`](https://github.com/newtalaria/clean-architecture/blob/main/examples/flutter/layer_first/lib/application/notes/save_note_use_case.dart).
 
-The use case does not import a widget, a provider, or `NoteRepositoryImpl`. The screen calls it through a provider defined in the composition root.
+The use case imports the port, `Clock`, and `IdGenerator`. `SystemClock` and `SequentialIdGenerator` live in those same files. The composition root is the file that names them. The notifier calls the use case through the providers. The page watches `notesProvider`.
 
 Next: [Data](data.md).

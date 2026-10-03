@@ -38,5 +38,5 @@ The shell router lives in `app/router/` so it is not trapped inside one feature.
 
 - A feature does not import a sibling feature. A type both need moves to `shared/`.
 - `app/` is the only file outside the feature that constructs `*RepositoryImpl`.
-- Presentation inside the feature imports the composition root for use cases. It does not import that feature's data or infra implementation.
+- The notifier imports the composition root for use cases. The page watches the screen provider. Neither imports that feature's data or infra implementation.
 - A workflow that needs two features' entities does not reach across. Move the shared type out, or the dependency rule is broken.

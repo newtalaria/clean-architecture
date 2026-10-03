@@ -4,9 +4,9 @@ description: app/providers.dart is the only file that constructs NoteRepositoryI
 tags: [clean-architecture, flutter]
 ---
 
-`lib/app/providers.dart` imports the feature's data implementation and is the only place that constructs `NoteRepositoryImpl`. The feature presentation depends on the providers, not on the store.
+`lib/app/providers.dart` imports the feature's data implementation and is the only place that constructs `NoteRepositoryImpl`. The notifier imports that file. The page imports the controller and the tile.
 
-That inward dependency is the whole rule. The feature may not import a sibling feature. The shell may import the feature.
+The shell imports the feature. A feature does not import a sibling feature. A type both need moves to `shared/`.
 
 ```dart
 final noteRepositoryProvider = Provider<NoteRepository>((ref) {

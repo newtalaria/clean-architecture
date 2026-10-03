@@ -11,12 +11,12 @@ The domain is the center. It names the things the business cares about and the r
 | Artifact | Notes example | Why it is here |
 | -------- | ------------- | -------------- |
 | Entity | `Note` | Identity and lifecycle |
-| Value object | `Title` | Compared by value. Holds the invariant |
+| Invariant | A title that cannot be blank | The rule lives on `Note.create`, not in the database |
 | Port | `NoteRepository` | The domain needs to load and save a note, and must not know how |
 | Domain service | A policy that uses more than one entity | The rule does not belong on a single object |
 | Domain failure | `InvalidTitle` | A business fact, not a transport error |
 
-A repository port lives in the domain when the entity cannot fulfill its lifecycle without persistence. The interface says what is needed: save, find by id. It does not say which engine, which table, or which session object.
+A repository port lives in the domain when the entity cannot fulfill its lifecycle without persistence. The interface says what is needed: save, find one, list. It does not say which engine, which table, or which session object. The courses list every note, so their port is `save` and `findAll`. Add `findById` when a workflow loads one note.
 
 ```text
 entity Note
@@ -33,9 +33,10 @@ entity Note
 port NoteRepository
   save(note) -> note
   findById(id) -> note or nothing
+  findAll() -> notes
 ```
 
-`create` is the only way to obtain a note. Callers do not assemble the fields by hand and skip the blank-title check.
+`Note.create` is how outside input becomes a note. A mapper may rebuild one from a row with the field constructor. That rebuild keeps a title the domain already accepted when every row was written through `create`. When a store can hold a row `create` would refuse, the mapper runs the invariant again or fails the load. [Infrastructure](infrastructure.md) is that rule.
 
 ## What stays outside
 

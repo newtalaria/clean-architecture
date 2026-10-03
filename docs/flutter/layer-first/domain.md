@@ -6,7 +6,7 @@ tags: [clean-architecture, flutter]
 
 In this track the entity lives at `lib/domain/notes/`. The shared failure type lives at `lib/domain/shared/`. A second feature would add `domain/notebooks/`, not a new top-level folder.
 
-A note has an identity, a title, and a body. `Note.create` is the only way to build one. A blank title fails with `ValidationFailure` before any repository is involved.
+A note has an identity, a title, and a body. `Note.create` is the constructor that checks the title. It trims the title and the body. A blank title throws `ValidationFailure('Title is required')` before any repository is involved. The row mapper rebuilds with the field constructor. The title rule has already run on `create`.
 
 ```dart
 factory Note.create({

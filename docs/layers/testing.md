@@ -54,11 +54,11 @@ test "round trip":
   repo = SqlNoteRepository(testDatabase)
   note = Note.create("Market", "body", T)
   repo.save(note)
-  loaded = repo.findById(note.id)
-  expect loaded == note
+  loaded = repo.findAll()
+  expect loaded == [note]
 ```
 
-This is the test that locks `toRow` and `toNote`, including a timestamp that survives the column type. Run it against the same engine production uses. A fake here would not catch a wrong column.
+This is the test that locks `toRow` and `toNote`, including a timestamp that survives the column type. `findAll` is the port the courses use, because the workflow lists notes. Add `findById` to the same port, and to this test, when a workflow loads one note. Run it against the same engine production uses. A fake here would not catch a wrong column.
 
 Keep this test on the adapter. Do not re-test `InvalidTitle` through SQL.
 

@@ -4,9 +4,15 @@ description: A domain test, a fake-repository use case test, a page test, and a 
 tags: [clean-architecture, flutter]
 ---
 
-A domain test, a fake-repository use case test, a save that crosses `NoteRow`, a page test through `ProviderScope`, and a tile test with no provider scope.
+The domain test trims `" Market "` to `Market` and `" Oat milk "` to `Oat milk`, and expects `ValidationFailure` for a blank title. No repository.
 
-`test/unit/domain/note_test.dart` checks the trim and the blank title. `test/unit/application/save_note_use_case_test.dart` uses a fake repository, then a real `NoteStore`, and asserts the row stored `createdAtMicros`. `test/widget/notes_page_test.dart` pumps `NotesPage` inside `ProviderScope`, saves "Market", and expects the tile. The blank-title test expects `Title is required` and `No notes yet`. `test/widget/note_tile_test.dart` pumps the tile inside a `Scaffold` and no `ProviderScope`.
+The application test saves `" Market "` through a fake repository with a fixed clock and the id `note-1`, and expects the title `Market`. A blank title leaves the fake empty. A second case uses a real `NoteStore` and asserts the row stored `createdAtMicros`.
+
+The page test pumps `NotesPage` inside `ProviderScope`, saves `Market`, and expects the tile. A blank title expects the text `Title is required` and `No notes yet`.
+
+The tile test pumps `NoteTile` from `ui/note_tile.dart` inside a `Scaffold` and no `ProviderScope`. A tile test that needed a provider scope would mean the widget had grown a provider of its own.
+
+`test/unit/monitoring_test.dart` checks that an empty or blank key skips init, that screen and user calls return when no client exists, and that the notes location owns `/notes`. It does not start the SDK.
 
 ```bash
 cd examples/flutter/hybrid

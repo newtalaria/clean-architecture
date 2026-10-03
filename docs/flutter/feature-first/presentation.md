@@ -21,8 +21,11 @@ Future<String?> save(String title, String body) async {
 }
 ```
 
-The page shows that message under the form. A blank title never reaches the store.
+`null` means the list state was replaced and the page clears the fields. A string means the form shows that message and the list stays as it was. A blank title never reaches the store.
 
-The files are [`lib/features/notes/presentation/notes_page.dart`](https://github.com/newtalaria/clean-architecture/blob/main/examples/flutter/feature_first/lib/features/notes/presentation/notes_page.dart) and [`lib/features/notes/presentation/notes_controller.dart`](https://github.com/newtalaria/clean-architecture/blob/main/examples/flutter/feature_first/lib/features/notes/presentation/notes_controller.dart) and [`lib/features/notes/presentation/note_tile.dart`](https://github.com/newtalaria/clean-architecture/blob/main/examples/flutter/feature_first/lib/features/notes/presentation/note_tile.dart) and [`lib/app/router/notes_location.dart`](https://github.com/newtalaria/clean-architecture/blob/main/examples/flutter/feature_first/lib/app/router/notes_location.dart).
+- [`lib/features/notes/presentation/notes_page.dart`](https://github.com/newtalaria/clean-architecture/blob/main/examples/flutter/feature_first/lib/features/notes/presentation/notes_page.dart) watches the provider and draws the form
+- [`lib/features/notes/presentation/notes_controller.dart`](https://github.com/newtalaria/clean-architecture/blob/main/examples/flutter/feature_first/lib/features/notes/presentation/notes_controller.dart) calls the use cases through `app/providers.dart`
+- [`lib/features/notes/presentation/note_tile.dart`](https://github.com/newtalaria/clean-architecture/blob/main/examples/flutter/feature_first/lib/features/notes/presentation/note_tile.dart) takes a title and a body
+- [`lib/app/router/notes_location.dart`](https://github.com/newtalaria/clean-architecture/blob/main/examples/flutter/feature_first/lib/app/router/notes_location.dart) lives outside the feature and reports the screen
 
 Next: [Composition root](composition.md).

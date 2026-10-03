@@ -4,9 +4,9 @@ description: A domain test, a fake-repository use case test, a page test, and a 
 tags: [clean-architecture, flutter]
 ---
 
-Same three layers of tests as the other tracks: domain, fake repository, store round-trip, page, and a tile with no provider scope. The tile import comes from `presentation/notes/`, which is the diff.
+The same checks as the hybrid track. The diff is the tile import: `presentation/notes/note_tile.dart`, beside the page, with no `ui/` folder.
 
-`test/unit/domain/note_test.dart` checks the trim and the blank title. `test/unit/application/save_note_use_case_test.dart` uses a fake repository, then a real `NoteStore`, and asserts the row stored `createdAtMicros`. `test/widget/notes_page_test.dart` pumps `NotesPage` inside `ProviderScope`, saves "Market", and expects the tile. The blank-title test expects `Title is required` and `No notes yet`. `test/widget/note_tile_test.dart` pumps the tile inside a `Scaffold` and no `ProviderScope`.
+The domain test trims the title and the body, and expects `ValidationFailure` for a blank title. The application test uses a fake repository, then a real `NoteStore`, and asserts `createdAtMicros`. The page test saves `Market` inside `ProviderScope` and expects the tile. A blank title expects `Title is required` and `No notes yet`. The tile test pumps the tile inside a `Scaffold` and no `ProviderScope`. The monitoring test checks the empty key, the quiet no-client calls, and the `/notes` path. It does not start the SDK.
 
 ```bash
 cd examples/flutter/layer_first

@@ -36,4 +36,4 @@ The package is [`examples/serverpod/layer_first`](https://github.com/newtalaria/
 8. [Tests](tests.md)
 9. [Talaria](talaria.md)
 
-The other tracks are [layer-first](../layer-first/README.md), [feature-first](../feature-first/README.md), and [hybrid](../hybrid/README.md). The [chooser](../README.md) compares where a file sits.
+Compare this tree with [feature-first](../feature-first/README.md) and [hybrid](../hybrid/README.md). The [chooser](../README.md) is the table of where a file sits.

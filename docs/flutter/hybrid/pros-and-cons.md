@@ -8,7 +8,7 @@ tags: [clean-architecture, flutter]
 
 The hard boundary stays obvious. `domain/` and `application/` are shared, so two screens cannot each invent a `Note`. Screen work is local: a new feature adds `presentation/features/notebooks/` and leaves the note entity where it is.
 
-`ui/` stays dumb. A tile can be pumped in a test with no `ProviderScope`, which keeps presentational widgets from growing a provider of their own.
+`ui/` stays presentational. A tile can be pumped in a test with no `ProviderScope`, which keeps it from growing a provider of its own.
 
 ## What it costs
 
