@@ -1,0 +1,40 @@
+---
+description: Layer-first folders. The feature name repeats inside each layer. Copy this instead of feature-first or hybrid.
+alwaysApply: true
+---
+
+# Layer-first
+
+Top folders are the layers. The feature name repeats inside each one. The composition root is the only file that sees every concrete type.
+
+## Serverpod
+
+```
+lib/src/domain/notes/
+lib/src/application/notes/
+lib/src/infra/notes/
+lib/src/presentation/notes/
+lib/src/presentation/mappers/wire_mappers.dart
+lib/src/app/
+```
+
+Wire mappers for every feature live in `presentation/mappers/`. A new feature adds `domain/<name>/`, `application/<name>/`, `infra/<name>/`, and `presentation/<name>/`. It does not add a new top-level folder.
+
+## Flutter
+
+```
+lib/domain/notes/
+lib/application/notes/
+lib/data/notes/
+lib/presentation/notes/     page, notifier, and tile
+lib/presentation/router/
+lib/app/providers.dart
+```
+
+There is no `ui/` folder and no `presentation/features/`. The tile sits beside the page and does not import Riverpod.
+
+## Rules
+
+- A use case lives in `application/<feature>/`, never under `presentation/`.
+- A second feature repeats its name in every layer. Shared failures live in `domain/shared/`.
+- Tests mirror the layers: `test/unit/domain/`, `test/unit/application/`, then one test that crosses the outer edge.

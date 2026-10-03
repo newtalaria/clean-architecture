@@ -28,4 +28,4 @@ The dependency rule is the same in every layout. Inner code never imports outer 
 - [Principles](docs/principles/README.md) — the dependency rule, entities, use cases, ports, and boundaries
 - [Layers](docs/layers/README.md) — what each layer owns, one request through the stack, and how to test it
 
-The Serverpod course is in [docs/serverpod](docs/serverpod/README.md), with the three apps under `examples/serverpod/`. The Flutter course is in [docs/flutter](docs/flutter/README.md), with the three apps under `examples/flutter/`. The skills pack follows.
+The Serverpod course is in [docs/serverpod](docs/serverpod/README.md), with the three apps under `examples/serverpod/`. The Flutter course is in [docs/flutter](docs/flutter/README.md), with the three apps under `examples/flutter/`. The skills pack is in [skills](skills/README.md), and the copy steps are in [docs/skills](docs/skills/README.md).

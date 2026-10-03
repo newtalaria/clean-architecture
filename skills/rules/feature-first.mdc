@@ -1,0 +1,42 @@
+---
+description: Feature-first folders. One directory holds every layer of a feature. Copy this instead of layer-first or hybrid.
+alwaysApply: true
+---
+
+# Feature-first
+
+One feature folder holds every layer. Opening it shows the whole use case. The composition root and a small shared kernel stay outside.
+
+## Serverpod
+
+```
+lib/src/features/notes/domain/
+lib/src/features/notes/application/
+lib/src/features/notes/infra/
+lib/src/features/notes/presentation/     endpoint and its wire mapper
+lib/src/shared/
+lib/src/app/
+```
+
+The wire mapper sits next to that feature's endpoint. Do not add a shared `presentation/mappers/` file.
+
+## Flutter
+
+```
+lib/features/notes/domain/
+lib/features/notes/application/
+lib/features/notes/data/
+lib/features/notes/presentation/     page, notifier, and tile
+lib/shared/
+lib/app/providers.dart
+lib/app/router/
+```
+
+The shell router lives in `app/router/` so it is not trapped inside one feature. The tile sits beside the page and does not import Riverpod.
+
+## Rules
+
+- A feature does not import a sibling feature. A type both need moves to `shared/`.
+- `app/` is the only file outside the feature that constructs `*RepositoryImpl`.
+- Presentation inside the feature imports the composition root for use cases. It does not import that feature's data or infra implementation.
+- A workflow that needs two features' entities does not reach across. Move the shared type out, or the dependency rule is broken.

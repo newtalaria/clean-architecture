@@ -1,0 +1,40 @@
+---
+description: Hybrid folders. Domain and application stay horizontal. Screens or endpoints are sliced by feature. Copy this instead of layer-first or feature-first.
+alwaysApply: true
+---
+
+# Hybrid
+
+Inner layers stay horizontal and shared. The outer edge is vertical. Two features must not each grow a private copy of the same entity.
+
+## Serverpod
+
+```
+lib/src/domain/notes/
+lib/src/application/notes/
+lib/src/infra/notes/
+lib/src/presentation/notes/     endpoint and its wire mapper
+lib/src/app/
+```
+
+The endpoint and its wire mapper both live in `presentation/<feature>/`. Do not add a shared `presentation/mappers/` file. Domain, application, and infra stay one directory each.
+
+## Flutter
+
+```
+lib/domain/notes/
+lib/application/notes/
+lib/data/notes/
+lib/presentation/features/notes/     page and notifier
+lib/presentation/router/
+lib/ui/                              no Riverpod
+lib/app/providers.dart
+```
+
+`ui/` is presentational. A tile takes values and callbacks. It does not import Riverpod, a repository, or a use case. Feature-only widgets that are not reused stay under `presentation/features/<name>/`.
+
+## Rules
+
+- Use cases stay in `application/<feature>/`. `presentation/<feature>/save_note_use_case.dart` couples the workflow to the screen or the endpoint.
+- The composition root stays one place. A new screen adds a feature folder. It does not add a new top-level layer.
+- Presentation imports use-case providers from `app/`. It does not import `*RepositoryImpl`.

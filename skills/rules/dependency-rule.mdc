@@ -1,0 +1,32 @@
+---
+description: Clean architecture dependency rule. Inner code never imports outer code. Copy this rule into every project.
+alwaysApply: true
+---
+
+# Dependency rule
+
+Source dependencies point inward. Outer code may call inner code. Inner code never imports outer code.
+
+```
+presentation / infrastructure
+        ↓
+   application
+        ↓
+     domain
+```
+
+| Layer | May import | Must not import |
+| ----- | ---------- | --------------- |
+| Domain | Pure language. No framework. | Application, infrastructure, presentation, widgets, generated clients |
+| Application | Domain, and ports the use case owns | Repository implementations, endpoints, widgets, providers |
+| Infrastructure or data | Domain, and the framework that stores or fetches | Application, presentation |
+| Presentation | Application ports through the composition root, and domain types | Concrete `*RepositoryImpl`, the database, the generated client used as a domain type |
+| Composition root (`app/`) | Every layer, to construct them | Business rules. No `if` that decides whether a title is valid |
+
+Infrastructure and presentation are both outer. They do not import each other.
+
+Three models meet at a boundary. The domain entity, the persistence row, and the wire payload are different types. Map at the edge. A blank title fails in the entity, before a repository is called.
+
+The composition root is the only place that constructs a repository implementation. Endpoints, pages, and notifiers receive a use case.
+
+Folder ownership is a separate rule. Copy one of `layer-first.mdc`, `feature-first.mdc`, or `hybrid.mdc` beside this file. Do not copy more than one layout.

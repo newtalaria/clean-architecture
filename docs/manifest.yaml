@@ -431,3 +431,9 @@ pages:
     title: Talaria
     description: Initialize talaria_flutter when TALARIA_API_KEY is set, in one zone with runApp.
     tags: [clean-architecture, flutter]
+
+  - id: skills
+    path: skills/README.md
+    title: Skills
+    description: Copy the dependency rule and one layout into a project, then add Flutter UI, Serverpod generate, or the Talaria bootstrap.
+    tags: [clean-architecture, skills]

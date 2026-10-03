@@ -21,5 +21,6 @@ The running example is a notes application. A note has an identity, a title, and
 
 - [Serverpod](serverpod/README.md) — the same notes API, built layer-first, feature-first, and hybrid, then instrumented with `talaria_serverpod`
 - [Flutter](flutter/README.md) — the same notes client, built hybrid, layer-first, and feature-first, then instrumented with `talaria_flutter`
+- [Skills](skills/README.md) — copy the dependency rule and the layout you picked onto a new project
 
-The skills pack is still to come. The book above applies in any language. The courses are where the folders become Dart.
+The book above applies in any language. The courses are where the folders become Dart. The skills page is how those rules move onto the next app.

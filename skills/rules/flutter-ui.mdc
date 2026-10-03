@@ -1,0 +1,20 @@
+---
+description: Presentational Flutter widgets. No Riverpod, no repositories, no navigation side effects.
+globs:
+  - "**/ui/**/*.dart"
+---
+
+# Flutter UI
+
+Widgets under `ui/` are presentational. Screens compose them. The widget does not decide how a note is saved.
+
+## Rules
+
+- No `flutter_riverpod` import. No `Provider`, no `Consumer`, no `ref`.
+- No repository, no use case, no HTTP client.
+- Navigation and saves are callbacks the page passes in, or they do not exist on the widget.
+- The widget takes the values it draws (`title`, `body`) and nothing it has to fetch.
+- A widget used by one screen stays beside that screen, in the presentation folder for the layout you copied. Move it to `ui/` when a second screen needs it.
+- Providers are hand-written Riverpod 3. Do not add `riverpod_annotation` or `build_runner` for providers.
+
+A page test pumps the screen inside `ProviderScope`. A tile test pumps the tile inside a `Scaffold` and no `ProviderScope`. If the tile test needs a provider scope, the widget is no longer presentational.
