@@ -1,0 +1,61 @@
+revision: "0.1.0"
+pages:
+  - id: hub
+    path: README.md
+    title: Clean architecture
+    description: Structure an application in layers, then instrument it. The dependency rule stays the same in every layout.
+    tags: [clean-architecture, book]
+
+  - id: principles
+    path: principles/README.md
+    title: Principles
+    description: The dependency rule, entities, use cases, ports and adapters, and the three ways a folder can own a feature.
+    tags: [clean-architecture, principles]
+
+  - id: layers
+    path: layers/README.md
+    title: Layers
+    description: Domain, application, infrastructure, presentation, and the composition root. Three models meet at each boundary.
+    tags: [clean-architecture, layers]
+
+  - id: domain
+    path: layers/domain.md
+    title: Domain
+    description: Entities, value objects, repository ports, and the rules that stay true with no framework in the room.
+    tags: [clean-architecture, domain]
+
+  - id: application
+    path: layers/application.md
+    title: Application
+    description: One use case per intent. Commands in, results out, and ports for anything that leaves the process.
+    tags: [clean-architecture, application]
+
+  - id: infrastructure
+    path: layers/infrastructure.md
+    title: Infrastructure
+    description: Adapters that implement ports. Map the persistence model to the domain entity at this boundary.
+    tags: [clean-architecture, infrastructure]
+
+  - id: presentation
+    path: layers/presentation.md
+    title: Presentation
+    description: A thin edge that maps the wire model to a command, calls one use case, and maps failures back out.
+    tags: [clean-architecture, presentation]
+
+  - id: composition-root
+    path: layers/composition-root.md
+    title: Composition root
+    description: The only place that constructs concrete adapters and hands them to the outer edge.
+    tags: [clean-architecture, composition]
+
+  - id: request
+    path: layers/request.md
+    title: One request
+    description: Save a note from the wire payload, through the use case and the domain, to the row that is stored.
+    tags: [clean-architecture, request]
+
+  - id: testing
+    path: layers/testing.md
+    title: Testing by layer
+    description: Pure domain tests, fake ports around a use case, one integration test at the store, and mapper tests at the edge.
+    tags: [clean-architecture, testing]
