@@ -13,10 +13,10 @@ class BooksLocation extends BeamLocation<BeamState> {
     return [
       const BeamPage(
         key: ValueKey('books'),
-        title: 'Books',
+        title: 'Library',
         child: ScreenReporter(
           path: RoutePaths.books,
-          title: 'Books',
+          title: 'Library',
           child: BooksPage(),
         ),
       ),

@@ -16,6 +16,7 @@ void main() {
       ),
     );
     expect(find.text('The Dispossessed'), findsOneWidget);
-    expect(find.text('Le Guin · unread'), findsOneWidget);
+    expect(find.text('Le Guin'), findsOneWidget);
+    expect(find.text('Unread'), findsOneWidget);
   });
 }

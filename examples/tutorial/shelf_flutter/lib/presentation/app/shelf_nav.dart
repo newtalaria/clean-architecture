@@ -2,7 +2,7 @@ import 'package:beamer/beamer.dart';
 import 'package:flutter/material.dart';
 import 'package:shelf_flutter/presentation/router/route_paths.dart';
 
-enum ShelfSection { books, shelves }
+enum ShelfSection { books, shelves, favourites }
 
 class ShelfNav extends StatelessWidget {
   const ShelfNav({super.key, required this.section});
@@ -17,15 +17,19 @@ class ShelfNav extends StatelessWidget {
         Text('Shelf', style: theme.textTheme.titleLarge),
         const Spacer(),
         _NavButton(
-          label: 'Books',
+          label: 'Library',
           selected: section == ShelfSection.books,
           onPressed: () => context.beamToNamed(RoutePaths.books),
         ),
-        const SizedBox(width: 4),
         _NavButton(
           label: 'Shelves',
           selected: section == ShelfSection.shelves,
           onPressed: () => context.beamToNamed(RoutePaths.shelves),
+        ),
+        _NavButton(
+          label: 'Favourites',
+          selected: section == ShelfSection.favourites,
+          onPressed: () => context.beamToNamed(RoutePaths.favourites),
         ),
       ],
     );
@@ -50,14 +54,28 @@ class _NavButton extends StatelessWidget {
       onPressed: onPressed,
       style: TextButton.styleFrom(
         foregroundColor: theme.colorScheme.onSurface,
-        backgroundColor: selected
-            ? theme.colorScheme.primary.withValues(alpha: 0.12)
-            : Colors.transparent,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        textStyle: const TextStyle(fontWeight: FontWeight.w600),
+        backgroundColor: Colors.transparent,
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
+        minimumSize: Size.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        shape: const RoundedRectangleBorder(),
+        textStyle: TextStyle(
+          fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+          letterSpacing: -0.2,
+        ),
       ),
-      child: Text(label),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(label),
+          const SizedBox(height: 4),
+          Container(
+            height: 2,
+            width: selected ? 18 : 0,
+            color: selected ? theme.colorScheme.onSurface : Colors.transparent,
+          ),
+        ],
+      ),
     );
   }
 }

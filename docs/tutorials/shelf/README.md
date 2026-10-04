@@ -20,7 +20,7 @@ The running code is [`examples/tutorial`](https://github.com/newtalaria/clean-ar
 
 Shelf is a reading shelf for one person on one machine. There are no accounts. Every chapter is about a layer boundary.
 
-A book has a title, an author, a reading status (`unread`, `reading`, or `read`), and a favourite flag. A shelf has a name and a capacity from 1 to 500. A book sits on at most one shelf. A shelf refuses another book when it is full. A favourite does not move the book.
+A book has a title, an author, a reading status (`unread`, `reading`, or `read`), and a favourite flag. A shelf has a name and a capacity from 1 to 500. A book sits on at most one shelf. A shelf refuses another book when it is full. A favourite does not move the book. You open a shelf, or Favourites, and see those books.
 
 You finish books on the server, then on Flutter, so you can save a book in the app before shelves exist. Shelves repeat the same path in shorter chapters. Placing a book is the chapter that uses both repositories.
 
@@ -72,6 +72,7 @@ lib/application/shelf/
 lib/data/                     Serverpod repositories and ProtocolMappers
 lib/presentation/features/books/
 lib/presentation/features/shelves/
+lib/presentation/features/favourites/
 lib/presentation/router/      Beamer
 lib/ui/                       tiles, shelf_theme.dart, shelf_frame.dart, no Riverpod
 lib/app/providers.dart

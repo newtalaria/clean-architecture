@@ -585,7 +585,7 @@ pages:
   - id: tut-flutter-presentation
     path: tutorials/shelf/flutter/presentation.md
     title: Books screen
-    description: A hand-written AsyncNotifier, a page, a tile with no Riverpod, and a Beamer location.
+    description: A hand-written AsyncNotifier, a library page, a tile with no Riverpod, and a Beamer location.
     tags: [clean-architecture, tutorial]
 
   - id: tut-flutter-run
@@ -603,7 +603,7 @@ pages:
   - id: tut-flutter-shelves
     path: tutorials/shelf/flutter/shelves.md
     title: Shelves on Flutter
-    description: The shelf form and list. The place control is the next chapter.
+    description: A shelf list you can open. The place control is the next chapter.
     tags: [clean-architecture, tutorial]
 
   - id: tut-place-book
@@ -615,7 +615,7 @@ pages:
   - id: tut-flutter-place
     path: tutorials/shelf/flutter/place-book.md
     title: The place control
-    description: The Flutter use case calls one repository method. The page does not re-check capacity.
+    description: The place control sits on the open shelf. The page does not re-check capacity.
     tags: [clean-architecture, tutorial]
 
   - id: tut-server-favorite
@@ -627,7 +627,7 @@ pages:
   - id: tut-flutter-favorite
     path: tutorials/shelf/flutter/favorite.md
     title: Favourite on Flutter
-    description: The heart is a callback on the tile. The page calls one use case and reloads the list.
+    description: Favourites lists marked books. The heart calls one use case and reloads the list.
     tags: [clean-architecture, tutorial]
 
   - id: tut-server-talaria

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 /// Warm paper, ink, and one copper accent. Screens share this theme.
 ThemeData shelfTheme() {
-  const ink = Color(0xFF1C1915);
-  const paper = Color(0xFFF3EDE3);
-  const card = Color(0xFFFFFBF6);
-  const line = Color(0xFFE4D8C8);
+  const ink = Color(0xFF141210);
+  const paper = Color(0xFFF7F4EF);
+  const card = Color(0xFFFFFCF8);
+  const line = Color(0xFFE7E0D6);
   const accent = Color(0xFF8C3A2F);
   const muted = Color(0xFF6F655C);
 
@@ -20,7 +20,7 @@ ThemeData shelfTheme() {
   );
 
   final outline = OutlineInputBorder(
-    borderRadius: BorderRadius.circular(10),
+    borderRadius: BorderRadius.circular(8),
     borderSide: const BorderSide(color: line),
   );
 
@@ -29,6 +29,20 @@ ThemeData shelfTheme() {
     colorScheme: scheme,
     scaffoldBackgroundColor: paper,
     dividerColor: line,
+    progressIndicatorTheme: const ProgressIndicatorThemeData(color: accent),
+    dialogTheme: DialogThemeData(
+      backgroundColor: card,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: const BorderSide(color: line),
+      ),
+      titleTextStyle: const TextStyle(
+        color: ink,
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        letterSpacing: -0.3,
+      ),
+    ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: paper,
@@ -36,17 +50,17 @@ ThemeData shelfTheme() {
       border: outline,
       enabledBorder: outline,
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: accent, width: 1.4),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         backgroundColor: accent,
         foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         textStyle: const TextStyle(fontWeight: FontWeight.w600),
       ),
     ),
@@ -55,7 +69,7 @@ ThemeData shelfTheme() {
         color: ink,
         fontSize: 22,
         fontWeight: FontWeight.w600,
-        letterSpacing: -0.4,
+        letterSpacing: -0.6,
       ),
       titleMedium: TextStyle(
         color: ink,

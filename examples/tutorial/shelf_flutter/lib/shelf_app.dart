@@ -2,6 +2,7 @@ import 'package:beamer/beamer.dart';
 import 'package:flutter/material.dart';
 import 'package:talaria_flutter/talaria_flutter.dart';
 import 'package:shelf_flutter/presentation/router/books_location.dart';
+import 'package:shelf_flutter/presentation/router/favourites_location.dart';
 import 'package:shelf_flutter/presentation/router/route_paths.dart';
 import 'package:shelf_flutter/presentation/router/shelves_location.dart';
 import 'package:shelf_flutter/ui/shelf_theme.dart';
@@ -17,7 +18,7 @@ class _ShelfAppState extends State<ShelfApp> {
   late final BeamerDelegate _router = BeamerDelegate(
     initialPath: RoutePaths.books,
     locationBuilder: BeamerLocationBuilder(
-      beamLocations: [BooksLocation(), ShelvesLocation()],
+      beamLocations: [BooksLocation(), ShelvesLocation(), FavouritesLocation()],
     ).call,
   );
 

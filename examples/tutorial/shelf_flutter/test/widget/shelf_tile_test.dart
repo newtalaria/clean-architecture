@@ -6,10 +6,10 @@ void main() {
   testWidgets('renders without a provider scope', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
-        home: Scaffold(body: ShelfTile(name: 'Fiction', capacity: 10)),
+        home: Scaffold(body: ShelfTile(name: 'Fiction', capacity: 10, held: 0)),
       ),
     );
     expect(find.text('Fiction'), findsOneWidget);
-    expect(find.text('Capacity 10'), findsOneWidget);
+    expect(find.text('0 of 10'), findsOneWidget);
   });
 }

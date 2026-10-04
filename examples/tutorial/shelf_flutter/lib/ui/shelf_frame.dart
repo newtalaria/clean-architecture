@@ -12,9 +12,9 @@ class ShelfFrame extends StatelessWidget {
       body: Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 720),
+          constraints: const BoxConstraints(maxWidth: 640),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 20, 24, 28),
+            padding: const EdgeInsets.fromLTRB(28, 24, 28, 32),
             child: child,
           ),
         ),
@@ -23,33 +23,39 @@ class ShelfFrame extends StatelessWidget {
   }
 }
 
-/// A titled card for a form or a short control.
-class ShelfPanel extends StatelessWidget {
-  const ShelfPanel({super.key, required this.title, required this.child});
+/// Page title, an optional count, and the action that opens a dialog.
+class ShelfSectionHeader extends StatelessWidget {
+  const ShelfSectionHeader({
+    super.key,
+    required this.title,
+    this.detail,
+    this.action,
+  });
 
   final String title;
-  final Widget child;
+  final String? detail;
+  final Widget? action;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.colorScheme.outline),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(title, style: theme.textTheme.titleMedium),
-            const SizedBox(height: 12),
-            child,
-          ],
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: theme.textTheme.titleLarge),
+              if (detail != null) ...[
+                const SizedBox(height: 2),
+                Text(detail!, style: theme.textTheme.bodySmall),
+              ],
+            ],
+          ),
         ),
-      ),
+        ?action,
+      ],
     );
   }
 }
@@ -76,9 +82,37 @@ class ShelfEmpty extends StatelessWidget {
           const SizedBox(height: 10),
           Text(message, style: theme.textTheme.titleMedium),
           const SizedBox(height: 4),
-          Text(hint, style: theme.textTheme.bodySmall),
+          Text(
+            hint,
+            style: theme.textTheme.bodySmall,
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
+    );
+  }
+}
+
+/// Quiet wait. Pages use this instead of the word "Loading".
+class ShelfLoading extends StatelessWidget {
+  const ShelfLoading({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(child: CircularProgressIndicator());
+  }
+}
+
+/// One sentence when a list cannot be loaded.
+class ShelfFailure extends StatelessWidget {
+  const ShelfFailure({super.key, required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text(message, style: Theme.of(context).textTheme.titleMedium),
     );
   }
 }

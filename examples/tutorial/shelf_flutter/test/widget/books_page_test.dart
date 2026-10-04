@@ -20,6 +20,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    await tester.tap(find.byKey(const Key('add-book')));
+    await tester.pumpAndSettle();
     await tester.enterText(
       find.byKey(const Key('book-title')),
       'The Dispossessed',
@@ -45,6 +47,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    await tester.tap(find.byKey(const Key('add-book')));
+    await tester.pumpAndSettle();
     await tester.enterText(
       find.byKey(const Key('book-title')),
       'The Dispossessed',

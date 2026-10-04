@@ -1,95 +1,3 @@
----
-title: The place control
-description: The place control sits on the open shelf. The page does not re-check capacity.
-tags: [clean-architecture, tutorial, flutter]
----
-
-The server use case owns the rule. The Flutter use case names the intent and calls the port.
-
-`lib/application/shelf/place_book_on_shelf_use_case.dart`:
-
-```dart
-import 'package:shelf_flutter/domain/book/book.dart';
-import 'package:shelf_flutter/domain/book/book_repository.dart';
-
-/// The screen's name for the server workflow. Capacity is decided on the server.
-class PlaceBookOnShelfUseCase {
-  const PlaceBookOnShelfUseCase(this._books);
-
-  final BookRepository _books;
-
-  Future<Book> execute({required String bookId, required String shelfId}) {
-    return _books.placeOnShelf(bookId: bookId, shelfId: shelfId);
-  }
-}
-```
-
-It takes `BookRepository` only. It does not take `ShelfRepository`. If it counted books on the client, the capacity rule would exist twice, and a full shelf could still be accepted by a stale list.
-
-Add `placeOnShelf` to `BookRepository` now. The shelf endpoint exists, so `client.shelf.place` compiles.
-
-```dart
-/// Calls the server use case that coordinates books and shelves.
-Future<Book> placeOnShelf({required String bookId, required String shelfId});
-```
-
-`ServerpodBookRepository.placeOnShelf` calls `client.shelf.place` and maps `ApiConflictException` to `Conflict` through `throwDomain`. `UuidValue` comes from `package:shelf_client`.
-
-```dart
-@override
-Future<Book> placeOnShelf({
-  required String bookId,
-  required String shelfId,
-}) async {
-  try {
-    final dto = await _client.shelf.place(
-      PlaceBookInput(
-        bookId: UuidValue.fromString(bookId),
-        shelfId: UuidValue.fromString(shelfId),
-      ),
-    );
-    return _mappers.toBook(dto);
-  } catch (error) {
-    _mappers.throwDomain(error);
-  }
-}
-```
-
-Add this provider. It watches `bookRepositoryProvider`.
-
-```dart
-final placeBookOnShelfUseCaseProvider = Provider<PlaceBookOnShelfUseCase>((
-  ref,
-) {
-  return PlaceBookOnShelfUseCase(ref.watch(bookRepositoryProvider));
-});
-```
-
-Add `place` to `ShelvesNotifier`. It catches `ValidationFailure`, `NotFound`, and `Conflict` and returns the message. It does not invent a local `placeOnShelf`.
-
-```dart
-Future<String?> place({
-  required String bookId,
-  required String shelfId,
-}) async {
-  try {
-    await ref
-        .read(placeBookOnShelfUseCaseProvider)
-        .execute(bookId: bookId, shelfId: shelfId);
-    return null;
-  } on ValidationFailure catch (error) {
-    return error.message;
-  } on NotFound catch (error) {
-    return error.message;
-  } on Conflict catch (error) {
-    return error.message;
-  }
-}
-```
-
-Replace `lib/presentation/features/shelves/shelf_page.dart`. The shelf is already chosen, so the control is one dropdown of books that are not on a shelf. Keys: `place-book` and `place-book-on-shelf`. A full shelf says `Shelf is full` and hides the control. On success the page invalidates `booksProvider`.
-
-```dart
 import 'package:beamer/beamer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -206,6 +114,17 @@ class _ShelfPageState extends ConsumerState<ShelfPage> {
                         title: book.title,
                         authorName: book.authorName,
                         status: book.status.name,
+                        favorite: book.favorite,
+                        onFavorite: () async {
+                          final message = await ref
+                              .read(booksProvider.notifier)
+                              .setFavorite(
+                                bookId: book.id,
+                                favorite: !book.favorite,
+                              );
+                          if (!mounted) return;
+                          setState(() => _error = message);
+                        },
                       ),
                   ],
                 ),
@@ -329,115 +248,3 @@ Shelf? _findShelf(List<Shelf> shelves, String id) {
   }
   return null;
 }
-```
-
-`test/widget/place_book_test.dart` opens that shelf, selects the book, taps Place, and expects `books.books['book-1']!.shelfId` to be `'shelf-1'`.
-
-```dart
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:shelf_flutter/app/providers.dart';
-import 'package:shelf_flutter/domain/book/book.dart';
-import 'package:shelf_flutter/domain/book/reading_status.dart';
-import 'package:shelf_flutter/domain/shelf/shelf.dart';
-import 'package:shelf_flutter/presentation/features/shelves/shelf_page.dart';
-
-import '../fakes/fake_book_repository.dart';
-import '../fakes/fake_shelf_repository.dart';
-
-void main() {
-  testWidgets('place stores the book on this shelf', (tester) async {
-    final books = FakeBookRepository();
-    final shelves = FakeShelfRepository();
-    final created = DateTime.utc(2026, 10, 3);
-    await books.save(
-      Book.create(
-        id: 'book-1',
-        title: 'The Dispossessed',
-        authorName: 'Le Guin',
-        status: ReadingStatus.unread,
-        createdAt: created,
-      ),
-    );
-    await shelves.save(
-      Shelf.create(
-        id: 'shelf-1',
-        name: 'Fiction',
-        capacity: 2,
-        createdAt: created,
-      ),
-    );
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          bookRepositoryProvider.overrideWithValue(books),
-          shelfRepositoryProvider.overrideWithValue(shelves),
-        ],
-        child: const MaterialApp(home: ShelfPage(shelfId: 'shelf-1')),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byKey(const Key('place-book')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('The Dispossessed').last);
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byKey(const Key('place-book-on-shelf')));
-    await tester.pumpAndSettle();
-
-    expect(books.books['book-1']!.shelfId, 'shelf-1');
-  });
-}
-```
-
-Add this test to `test/widget/shelf_page_test.dart`. A shelf of capacity 1 that already holds a book hides the dropdown.
-
-```dart
-testWidgets('a full shelf hides the place control', (tester) async {
-  final books = FakeBookRepository();
-  final shelves = FakeShelfRepository();
-  final created = DateTime.utc(2026, 10, 3);
-  await books.save(
-    Book.create(
-      id: 'book-1',
-      title: 'The Dispossessed',
-      authorName: 'Le Guin',
-      status: ReadingStatus.unread,
-      createdAt: created,
-    ).placeOnShelf('shelf-1'),
-  );
-  await shelves.save(
-    Shelf.create(
-      id: 'shelf-1',
-      name: 'Fiction',
-      capacity: 1,
-      createdAt: created,
-    ),
-  );
-
-  await tester.pumpWidget(
-    ProviderScope(
-      overrides: [
-        bookRepositoryProvider.overrideWithValue(books),
-        shelfRepositoryProvider.overrideWithValue(shelves),
-      ],
-      child: const MaterialApp(home: ShelfPage(shelfId: 'shelf-1')),
-    ),
-  );
-  await tester.pumpAndSettle();
-
-  expect(find.text('Shelf is full'), findsOneWidget);
-  expect(find.byKey(const Key('place-book')), findsNothing);
-});
-```
-
-```bash
-flutter test
-```
-
-Run the app against the server. Save two books and a shelf of capacity 1. Open the shelf. Place the first book. Place the second. The page shows `Shelf is full`.
-
-Next: [favourite a book](../server/favorite.md).

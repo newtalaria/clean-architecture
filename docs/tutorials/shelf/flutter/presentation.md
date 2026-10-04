@@ -8,9 +8,9 @@ The screen is three files plus a tile. The tile is the part you can reuse withou
 
 ## The tile
 
-Create `lib/ui/book_tile.dart`. It imports Flutter only. The status arrives as a `String` so this file does not need the domain enum. The page passes `book.status.name`. The subtitle stays `'$authorName · $status'`.
+Create `lib/ui/book_tile.dart`. It imports Flutter only. The status arrives as a `String` so this file does not need the domain enum. The page passes `book.status.name`. The author is its own line. The status is a chip: Unread, Reading, or Read. `bookStatusLabel` maps the wire value.
 
-The tile takes an optional `onFavorite`. Leave it unset in this chapter. The favourite chapter passes it, and the heart is drawn only when that callback is set.
+The tile takes an optional `shelfName` and an optional `onFavorite`. Leave both unset in this chapter. The shelves chapter passes the shelf name on the library row. The favourite chapter passes the heart, and the heart is drawn only when that callback is set.
 
 ```dart
 import 'package:flutter/material.dart';
@@ -18,12 +18,14 @@ import 'package:flutter/material.dart';
 /// Presentational. This file does not import Riverpod.
 ///
 /// [onFavorite] is null until the favourite chapter wires the heart.
+/// [shelfName] is null on a shelf page, where the name is already the title.
 class BookTile extends StatelessWidget {
   const BookTile({
     super.key,
     required this.title,
     required this.authorName,
     required this.status,
+    this.shelfName,
     this.favorite = false,
     this.onFavorite,
   });
@@ -31,6 +33,7 @@ class BookTile extends StatelessWidget {
   final String title;
   final String authorName;
   final String status;
+  final String? shelfName;
   final bool favorite;
   final VoidCallback? onFavorite;
 
@@ -42,19 +45,19 @@ class BookTile extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(8),
           border: Border.all(color: theme.colorScheme.outline),
         ),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(14, 12, 6, 12),
+          padding: const EdgeInsets.fromLTRB(14, 12, 4, 12),
           child: Row(
             children: [
               Container(
-                width: 4,
-                height: 36,
+                width: 3,
+                height: 40,
                 decoration: BoxDecoration(
                   color: theme.colorScheme.primary,
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
               const SizedBox(width: 12),
@@ -62,19 +65,38 @@ class BookTile extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: theme.textTheme.titleMedium),
+                    Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.titleMedium,
+                    ),
                     const SizedBox(height: 2),
                     Text(
-                      '$authorName · $status',
+                      authorName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.bodySmall,
                     ),
+                    if (shelfName != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        shelfName!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodySmall,
+                      ),
+                    ],
                   ],
                 ),
               ),
+              const SizedBox(width: 8),
+              _StatusChip(label: bookStatusLabel(status)),
               if (onFavorite != null)
                 IconButton(
                   key: Key('favorite-$title'),
                   tooltip: favorite ? 'Remove favourite' : 'Favourite',
+                  visualDensity: VisualDensity.compact,
                   onPressed: onFavorite,
                   icon: Icon(
                     favorite ? Icons.favorite : Icons.favorite_border,
@@ -90,9 +112,39 @@ class BookTile extends StatelessWidget {
     );
   }
 }
+
+/// The wire value is `unread`, `reading`, or `read`. The chip reads as a word.
+String bookStatusLabel(String status) {
+  return switch (status) {
+    'reading' => 'Reading',
+    'read' => 'Read',
+    _ => 'Unread',
+  };
+}
+
+class _StatusChip extends StatelessWidget {
+  const _StatusChip({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: theme.colorScheme.outline),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        child: Text(label, style: theme.textTheme.bodySmall),
+      ),
+    );
+  }
+}
 ```
 
-`test/widget/book_tile_test.dart` pumps the tile inside a `MaterialApp` whose home is a `Scaffold`, so `Theme.of` resolves. The test does not wrap the tile in `ProviderScope`. If that test needs a scope, the tile has started to read a provider. It does not pass `onFavorite`, so the heart is absent.
+`test/widget/book_tile_test.dart``test/widget/book_tile_test.dart` pumps the tile inside a `MaterialApp` whose home is a `Scaffold`, so `Theme.of` resolves. The test does not wrap the tile in `ProviderScope`. If that test needs a scope, the tile has started to read a provider. It does not pass `onFavorite`, so the heart is absent.
 
 ```dart
 import 'package:flutter/material.dart';
@@ -113,7 +165,8 @@ void main() {
       ),
     );
     expect(find.text('The Dispossessed'), findsOneWidget);
-    expect(find.text('Le Guin · unread'), findsOneWidget);
+    expect(find.text('Le Guin'), findsOneWidget);
+    expect(find.text('Unread'), findsOneWidget);
   });
 }
 ```
@@ -168,25 +221,19 @@ final booksProvider = AsyncNotifierProvider<BooksNotifier, List<Book>>(
 
 ## The page
 
-`BooksPage` is a `ConsumerStatefulWidget`. Two `TextEditingController`s hold the form. The save button calls `ref.read(booksProvider.notifier).save(...)`. Local `setState` is enough for the error string under the form. The list itself is `ref.watch(booksProvider)`.
+`BooksPage` is a `ConsumerStatefulWidget`. Add book opens a dialog. The dialog keeps the keys `book-title`, `book-author`, and `save-book`. The button that opens it is `add-book`. The list itself is `ref.watch(booksProvider)`.
 
-Keys `book-title`, `book-author`, and `save-book` exist so the widget test can find the fields without matching on decoration text.
-
-Empty, loading, and error are the three branches of `books.when`. An empty library says `No books yet`.
-
-The screen sits on a warm paper background, ink text, and one copper accent. `ShelfFrame` keeps the column on a reading width. `ShelfPanel` is the form card. `ShelfEmpty` is the empty library. The favourite chapter does not change these files.
-
-`lib/ui/shelf_theme.dart`:
+Empty, loading, and failure are three widgets. An empty library says `No books yet`. A failed load says `Could not load the library.`
 
 ```dart
 import 'package:flutter/material.dart';
 
 /// Warm paper, ink, and one copper accent. Screens share this theme.
 ThemeData shelfTheme() {
-  const ink = Color(0xFF1C1915);
-  const paper = Color(0xFFF3EDE3);
-  const card = Color(0xFFFFFBF6);
-  const line = Color(0xFFE4D8C8);
+  const ink = Color(0xFF141210);
+  const paper = Color(0xFFF7F4EF);
+  const card = Color(0xFFFFFCF8);
+  const line = Color(0xFFE7E0D6);
   const accent = Color(0xFF8C3A2F);
   const muted = Color(0xFF6F655C);
 
@@ -201,7 +248,7 @@ ThemeData shelfTheme() {
   );
 
   final outline = OutlineInputBorder(
-    borderRadius: BorderRadius.circular(10),
+    borderRadius: BorderRadius.circular(8),
     borderSide: const BorderSide(color: line),
   );
 
@@ -210,6 +257,20 @@ ThemeData shelfTheme() {
     colorScheme: scheme,
     scaffoldBackgroundColor: paper,
     dividerColor: line,
+    progressIndicatorTheme: const ProgressIndicatorThemeData(color: accent),
+    dialogTheme: DialogThemeData(
+      backgroundColor: card,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: const BorderSide(color: line),
+      ),
+      titleTextStyle: const TextStyle(
+        color: ink,
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        letterSpacing: -0.3,
+      ),
+    ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: paper,
@@ -217,17 +278,17 @@ ThemeData shelfTheme() {
       border: outline,
       enabledBorder: outline,
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: accent, width: 1.4),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         backgroundColor: accent,
         foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         textStyle: const TextStyle(fontWeight: FontWeight.w600),
       ),
     ),
@@ -236,7 +297,7 @@ ThemeData shelfTheme() {
         color: ink,
         fontSize: 22,
         fontWeight: FontWeight.w600,
-        letterSpacing: -0.4,
+        letterSpacing: -0.6,
       ),
       titleMedium: TextStyle(
         color: ink,
@@ -251,7 +312,7 @@ ThemeData shelfTheme() {
 }
 ```
 
-`lib/ui/shelf_frame.dart`:
+`lib/ui/shelf_frame.dart`:`lib/ui/shelf_frame.dart`:
 
 ```dart
 import 'package:flutter/material.dart';
@@ -268,9 +329,9 @@ class ShelfFrame extends StatelessWidget {
       body: Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 720),
+          constraints: const BoxConstraints(maxWidth: 640),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 20, 24, 28),
+            padding: const EdgeInsets.fromLTRB(28, 24, 28, 32),
             child: child,
           ),
         ),
@@ -279,33 +340,39 @@ class ShelfFrame extends StatelessWidget {
   }
 }
 
-/// A titled card for a form or a short control.
-class ShelfPanel extends StatelessWidget {
-  const ShelfPanel({super.key, required this.title, required this.child});
+/// Page title, an optional count, and the action that opens a dialog.
+class ShelfSectionHeader extends StatelessWidget {
+  const ShelfSectionHeader({
+    super.key,
+    required this.title,
+    this.detail,
+    this.action,
+  });
 
   final String title;
-  final Widget child;
+  final String? detail;
+  final Widget? action;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.colorScheme.outline),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(title, style: theme.textTheme.titleMedium),
-            const SizedBox(height: 12),
-            child,
-          ],
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: theme.textTheme.titleLarge),
+              if (detail != null) ...[
+                const SizedBox(height: 2),
+                Text(detail!, style: theme.textTheme.bodySmall),
+              ],
+            ],
+          ),
         ),
-      ),
+        ?action,
+      ],
     );
   }
 }
@@ -332,9 +399,37 @@ class ShelfEmpty extends StatelessWidget {
           const SizedBox(height: 10),
           Text(message, style: theme.textTheme.titleMedium),
           const SizedBox(height: 4),
-          Text(hint, style: theme.textTheme.bodySmall),
+          Text(
+            hint,
+            style: theme.textTheme.bodySmall,
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
+    );
+  }
+}
+
+/// Quiet wait. Pages use this instead of the word "Loading".
+class ShelfLoading extends StatelessWidget {
+  const ShelfLoading({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(child: CircularProgressIndicator());
+  }
+}
+
+/// One sentence when a list cannot be loaded.
+class ShelfFailure extends StatelessWidget {
+  const ShelfFailure({super.key, required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text(message, style: Theme.of(context).textTheme.titleMedium),
     );
   }
 }
@@ -345,6 +440,7 @@ class ShelfEmpty extends StatelessWidget {
 ```dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shelf_flutter/domain/book/book.dart';
 import 'package:shelf_flutter/presentation/app/shelf_nav.dart';
 import 'package:shelf_flutter/presentation/features/books/books_notifier.dart';
 import 'package:shelf_flutter/ui/book_tile.dart';
@@ -358,6 +454,75 @@ class BooksPage extends ConsumerStatefulWidget {
 }
 
 class _BooksPageState extends ConsumerState<BooksPage> {
+  Future<void> _addBook() {
+    return showDialog<void>(
+      context: context,
+      builder: (context) => const _AddBookDialog(),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final books = ref.watch(booksProvider);
+    return ShelfFrame(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const ShelfNav(section: ShelfSection.books),
+          const SizedBox(height: 28),
+          ShelfSectionHeader(
+            title: 'Library',
+            detail: books.asData?.value == null
+                ? null
+                : _countLabel(books.requireValue.length),
+            action: FilledButton(
+              key: const Key('add-book'),
+              onPressed: _addBook,
+              child: const Text('Add book'),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Expanded(child: _list(books)),
+        ],
+      ),
+    );
+  }
+
+  Widget _list(AsyncValue<List<Book>> books) {
+    if (books.hasError && !books.hasValue) {
+      return const ShelfFailure(message: 'Could not load the library.');
+    }
+    if (!books.hasValue) return const ShelfLoading();
+    final items = books.requireValue;
+    if (items.isEmpty) {
+      return const ShelfEmpty(
+        message: 'No books yet',
+        hint: 'Save a title and it will show up here.',
+      );
+    }
+    return ListView(
+      children: [
+        for (final book in items)
+          BookTile(
+            title: book.title,
+            authorName: book.authorName,
+            status: book.status.name,
+          ),
+      ],
+    );
+  }
+}
+
+String _countLabel(int count) => count == 1 ? '1 book' : '$count books';
+
+class _AddBookDialog extends ConsumerStatefulWidget {
+  const _AddBookDialog();
+
+  @override
+  ConsumerState<_AddBookDialog> createState() => _AddBookDialogState();
+}
+
+class _AddBookDialogState extends ConsumerState<_AddBookDialog> {
   final _title = TextEditingController();
   final _author = TextEditingController();
   String? _error;
@@ -371,96 +536,62 @@ class _BooksPageState extends ConsumerState<BooksPage> {
 
   @override
   Widget build(BuildContext context) {
-    final books = ref.watch(booksProvider);
     final theme = Theme.of(context);
-    return ShelfFrame(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const ShelfNav(section: ShelfSection.books),
-          const SizedBox(height: 20),
-          ShelfPanel(
-            title: 'Add a book',
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                TextField(
-                  key: const Key('book-title'),
-                  controller: _title,
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(labelText: 'Title'),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  key: const Key('book-author'),
-                  controller: _author,
-                  textInputAction: TextInputAction.done,
-                  decoration: const InputDecoration(labelText: 'Author'),
-                ),
-                if (_error != null) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    _error!,
-                    style: TextStyle(color: theme.colorScheme.error),
-                  ),
-                ],
-                const SizedBox(height: 12),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: FilledButton(
-                    key: const Key('save-book'),
-                    onPressed: () async {
-                      final message = await ref
-                          .read(booksProvider.notifier)
-                          .save(title: _title.text, authorName: _author.text);
-                      if (!mounted) return;
-                      setState(() => _error = message);
-                      if (message == null) {
-                        _title.clear();
-                        _author.clear();
-                      }
-                    },
-                    child: const Text('Save book'),
-                  ),
-                ),
-              ],
+    return AlertDialog(
+      scrollable: true,
+      title: const Text('Add a book'),
+      content: SizedBox(
+        width: 420,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              key: const Key('book-title'),
+              controller: _title,
+              textInputAction: TextInputAction.next,
+              decoration: const InputDecoration(labelText: 'Title'),
             ),
-          ),
-          const SizedBox(height: 22),
-          Text('Library', style: theme.textTheme.titleMedium),
-          const SizedBox(height: 10),
-          Expanded(
-            child: books.when(
-              data: (items) {
-                if (items.isEmpty) {
-                  return const ShelfEmpty(
-                    message: 'No books yet',
-                    hint: 'Save a title and it will show up here.',
-                  );
-                }
-                return ListView(
-                  children: [
-                    for (final book in items)
-                      BookTile(
-                        title: book.title,
-                        authorName: book.authorName,
-                        status: book.status.name,
-                      ),
-                  ],
-                );
-              },
-              loading: () => const Text('Loading'),
-              error: (error, _) => Text(error.toString()),
+            const SizedBox(height: 10),
+            TextField(
+              key: const Key('book-author'),
+              controller: _author,
+              textInputAction: TextInputAction.done,
+              decoration: const InputDecoration(labelText: 'Author'),
             ),
-          ),
-        ],
+            if (_error != null) ...[
+              const SizedBox(height: 8),
+              Text(_error!, style: TextStyle(color: theme.colorScheme.error)),
+            ],
+          ],
+        ),
       ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          key: const Key('save-book'),
+          onPressed: () async {
+            final message = await ref
+                .read(booksProvider.notifier)
+                .save(title: _title.text, authorName: _author.text);
+            if (!context.mounted) return;
+            if (message == null) {
+              Navigator.of(context).pop();
+            } else {
+              setState(() => _error = message);
+            }
+          },
+          child: const Text('Save book'),
+        ),
+      ],
     );
   }
 }
 ```
 
-`lib/presentation/app/shelf_nav.dart` calls `context.beamToNamed` from the button press. It does not call `Beamer.of` while building, so a widget test can pump the page without a router. Navigation stays in presentation. The tile does not know the routes. Pass `ShelfSection.books` from this page and `ShelfSection.shelves` from the shelves page.
+`lib/presentation/app/shelf_nav.dart` calls `context.beamToNamed` from the button press. It does not call `Beamer.of` while building, so a widget test can pump the page without a router. Navigation stays in presentation. The tile does not know the routes. Pass `ShelfSection.books` from this page and `ShelfSection.shelves` from the shelves page. The labels are Library and Shelves. The selected label has an underline. Favourites is the favourite chapter.
 
 ```dart
 import 'package:beamer/beamer.dart';
@@ -482,11 +613,10 @@ class ShelfNav extends StatelessWidget {
         Text('Shelf', style: theme.textTheme.titleLarge),
         const Spacer(),
         _NavButton(
-          label: 'Books',
+          label: 'Library',
           selected: section == ShelfSection.books,
           onPressed: () => context.beamToNamed(RoutePaths.books),
         ),
-        const SizedBox(width: 4),
         _NavButton(
           label: 'Shelves',
           selected: section == ShelfSection.shelves,
@@ -515,14 +645,28 @@ class _NavButton extends StatelessWidget {
       onPressed: onPressed,
       style: TextButton.styleFrom(
         foregroundColor: theme.colorScheme.onSurface,
-        backgroundColor: selected
-            ? theme.colorScheme.primary.withValues(alpha: 0.12)
-            : Colors.transparent,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        textStyle: const TextStyle(fontWeight: FontWeight.w600),
+        backgroundColor: Colors.transparent,
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
+        minimumSize: Size.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        shape: const RoundedRectangleBorder(),
+        textStyle: TextStyle(
+          fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+          letterSpacing: -0.2,
+        ),
       ),
-      child: Text(label),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(label),
+          const SizedBox(height: 4),
+          Container(
+            height: 2,
+            width: selected ? 18 : 0,
+            color: selected ? theme.colorScheme.onSurface : Colors.transparent,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -552,7 +696,7 @@ class FakeBookRepository implements BookRepository {
 }
 ```
 
-`test/widget/books_page_test.dart` overrides `bookRepositoryProvider` with `FakeBookRepository`, enters a title and an author, taps save, and expects the title on screen. That test does not start Serverpod. `shelfRepositoryProvider` does not exist yet, so this chapter does not override it.
+`test/widget/books_page_test.dart` overrides `bookRepositoryProvider` with `FakeBookRepository`, opens Add book, enters a title and an author, taps save, and expects the title on screen. That test does not start Serverpod. `shelfRepositoryProvider` does not exist yet, so this chapter does not override it.
 
 ```dart
 import 'package:flutter/material.dart';
@@ -575,7 +719,12 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.enterText(find.byKey(const Key('book-title')), 'The Dispossessed');
+    await tester.tap(find.byKey(const Key('add-book')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('book-title')),
+      'The Dispossessed',
+    );
     await tester.enterText(find.byKey(const Key('book-author')), 'Le Guin');
     await tester.tap(find.byKey(const Key('save-book')));
     await tester.pumpAndSettle();
@@ -641,10 +790,10 @@ class BooksLocation extends BeamLocation<BeamState> {
     return [
       const BeamPage(
         key: ValueKey('books'),
-        title: 'Books',
+        title: 'Library',
         child: ScreenReporter(
           path: RoutePaths.books,
-          title: 'Books',
+          title: 'Library',
           child: BooksPage(),
         ),
       ),

@@ -4,16 +4,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shelf_flutter/app/providers.dart';
 import 'package:shelf_flutter/domain/book/book.dart';
 import 'package:shelf_flutter/domain/book/reading_status.dart';
-import 'package:shelf_flutter/domain/shelf/shelf.dart';
-import 'package:shelf_flutter/presentation/features/shelves/shelf_page.dart';
+import 'package:shelf_flutter/presentation/features/favourites/favourites_page.dart';
 
 import '../fakes/fake_book_repository.dart';
 import '../fakes/fake_shelf_repository.dart';
 
 void main() {
-  testWidgets('place stores the book on this shelf', (tester) async {
+  testWidgets('shows only books marked as favourites', (tester) async {
     final books = FakeBookRepository();
-    final shelves = FakeShelfRepository();
     final created = DateTime.utc(2026, 10, 3);
     await books.save(
       Book.create(
@@ -22,14 +20,15 @@ void main() {
         authorName: 'Le Guin',
         status: ReadingStatus.unread,
         createdAt: created,
-      ),
+      ).setFavorite(true),
     );
-    await shelves.save(
-      Shelf.create(
-        id: 'shelf-1',
-        name: 'Fiction',
-        capacity: 2,
-        createdAt: created,
+    await books.save(
+      Book.create(
+        id: 'book-2',
+        title: 'The Left Hand of Darkness',
+        authorName: 'Le Guin',
+        status: ReadingStatus.unread,
+        createdAt: created.add(const Duration(seconds: 1)),
       ),
     );
 
@@ -37,21 +36,15 @@ void main() {
       ProviderScope(
         overrides: [
           bookRepositoryProvider.overrideWithValue(books),
-          shelfRepositoryProvider.overrideWithValue(shelves),
+          shelfRepositoryProvider.overrideWithValue(FakeShelfRepository()),
         ],
-        child: const MaterialApp(home: ShelfPage(shelfId: 'shelf-1')),
+        child: const MaterialApp(home: FavouritesPage()),
       ),
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(const Key('place-book')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('The Dispossessed').last);
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byKey(const Key('place-book-on-shelf')));
-    await tester.pumpAndSettle();
-
-    expect(books.books['book-1']!.shelfId, 'shelf-1');
+    expect(find.text('The Dispossessed'), findsOneWidget);
+    expect(find.text('The Left Hand of Darkness'), findsNothing);
+    expect(find.byIcon(Icons.favorite), findsOneWidget);
   });
 }

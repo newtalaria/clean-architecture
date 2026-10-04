@@ -61,7 +61,7 @@ cd shelf_flutter
 flutter run -d chrome
 ```
 
-Open `/books`. Save a book with a title and an author. The list shows the trimmed title. Save a book with a blank title. The page shows `Title is required` and the list does not grow.
+Open `/books`. Choose Add book. Save a book with a title and an author. The list shows the trimmed title. Choose Add book again and save a book with a blank title. The dialog shows `Title is required` and the list does not grow.
 
 ```bash
 flutter test
