@@ -67,14 +67,8 @@ class BookEndpoint extends Endpoint {
 }
 ```
 
-`AppDi` does not exist yet. The next chapter creates it. The endpoint holds `UseCases`, not `BookRepositoryImpl`. `Session` is passed into the factory so the repository can be built for this request. It is not passed into `execute`.
+`AppDi` does not exist yet. The next chapter creates it. Do not run `serverpod generate` on this page. The endpoint imports `di.dart`, so the analyzer reports that URI as missing until the composition root exists.
 
-Generate once more so `Endpoints` registers `book`:
-
-```bash
-serverpod generate
-```
-
-Open `lib/src/generated/endpoints.dart` and confirm the `'book'` connector has `save` and `list`. If the method is missing, the class does not extend `Endpoint`, or the method is private, or you did not generate after saving the file.
+The endpoint holds `UseCases`, not `BookRepositoryImpl`. `Session` is passed into the factory so the repository can be built for this request. It is not passed into `execute`.
 
 Next: [the composition root](composition.md).

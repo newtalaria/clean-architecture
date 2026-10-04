@@ -6,7 +6,7 @@ tags: [clean-architecture, flutter]
 
 The [book](../README.md) keeps the dependency rule the same in every layout. This course builds that rule as a Flutter notes client, three times, so you can diff the trees. Each app saves a note and lists notes. A late chapter in each track adds `talaria_flutter`.
 
-The long walkthrough is [Shelf](../tutorial/README.md). The Flutter half is the hybrid layout: shared domain and application, feature screens, and a `ui/` tile with no Riverpod. These three tracks stay the comparison.
+The long walkthrough is [Shelf](../tutorials/shelf/README.md). The Flutter half is the hybrid layout: shared domain and application, feature screens, and a `ui/` tile with no Riverpod. These three tracks stay the comparison.
 
 Providers are written by hand in Riverpod 3. `flutter test` is the whole check, with no code generator for providers. Entities are plain Dart. Beamer is the router adapter: a location builds the page and reports the screen. Notes are kept in memory, where an API client would sit, so the tests do not need a backend. `main` still wraps an HTTP client when `TALARIA_API_KEY` is set. The notes repository does not call it. That client is the hook a real API call would use.
 

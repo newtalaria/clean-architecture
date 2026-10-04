@@ -20,6 +20,8 @@ dependencies:
   dart_mappable: ^4.8.0
   flutter:
     sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
   flutter_riverpod: ^3.3.2
   http: ^1.4.0
   serverpod_flutter: 4.0.1

@@ -10,7 +10,19 @@ Create the server from the Serverpod CLI so the generator, the client package, a
 serverpod create shelf --template server --no-redis --no-auth --ide none
 ```
 
-That writes a workspace with `shelf_server` and `shelf_client`. Move both under `examples/tutorial/`, with a workspace `pubspec.yaml` that lists them. The template also writes a greeting endpoint. Delete `lib/src/greetings/` and its test. Shelf does not start from a sample endpoint.
+That writes a workspace directory named `shelf`, with `shelf_server`, `shelf_client`, and a `pubspec.yaml` whose `workspace` list is `shelf_client` and `shelf_server`. Move that whole directory:
+
+```bash
+mkdir -p examples && mv shelf examples/tutorial
+```
+
+The template also writes a greeting endpoint. From `examples/tutorial/shelf_server`, delete `lib/src/greetings/` and `test/integration/greeting_endpoint_test.dart`, then regenerate so `endpoints.dart` no longer imports the sample:
+
+```bash
+serverpod generate
+```
+
+Shelf does not start from a sample endpoint.
 
 The template listens on port 8080 and Postgres on 8090. Serverpod 4.0.1 already writes `config/passwords.yaml`. There is no `config/passwords.example.yaml` to copy. The generated passwords file is what `dart test` and `docker compose` read.
 

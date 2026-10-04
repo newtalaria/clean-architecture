@@ -11,6 +11,15 @@ The class file is `lib/src/application/shelf/place_book_on_shelf_use_case.dart`.
 It does not live in `presentation/shelf/`. The endpoint is a caller. If the class sat next to the endpoint, the rule would depend on the edge, and a second caller (a job, a test) would import presentation.
 
 ```dart
+import '../../domain/book/book_repository.dart';
+import '../../domain/book/entities/book.dart';
+import '../../domain/shared/exceptions/not_found.dart';
+import '../../domain/shelf/shelf_repository.dart';
+
+/// Places a book on a shelf. Lives with shelves and uses the book port.
+///
+/// This is the workflow a feature-first folder cannot own: it is not only a
+/// shelf change and not only a book change.
 class PlaceBookOnShelfUseCase {
   const PlaceBookOnShelfUseCase(this._shelves, this._books);
 

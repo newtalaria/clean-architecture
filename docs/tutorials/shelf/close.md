@@ -25,8 +25,8 @@ The Flutter button stops at `PlaceBookOnShelfUseCase`, which stops at `BookRepos
 
 The three short courses build a notes API in each layout if you want to diff a smaller tree:
 
-- [Serverpod](../serverpod/README.md), including the [hybrid](../serverpod/hybrid/README.md) track this tutorial follows and the [layer-first](../serverpod/layer-first/README.md) track a large existing server may already use
-- [Flutter](../flutter/README.md), including the [hybrid](../flutter/hybrid/README.md) track
-- [Skills](../skills/README.md), to copy the dependency rule onto the next project
+- [Serverpod](../../serverpod/README.md), including the [hybrid](../../serverpod/hybrid/README.md) track this tutorial follows and the [layer-first](../../serverpod/layer-first/README.md) track a large existing server may already use
+- [Flutter](../../flutter/README.md), including the [hybrid](../../flutter/hybrid/README.md) track
+- [Skills](../../skills/README.md), to copy the dependency rule onto the next project
 
-The book, before any of those folders, is [Principles](../principles/README.md) and [Layers](../layers/README.md).
+The book, before any of those folders, is [Principles](../../principles/README.md) and [Layers](../../layers/README.md).

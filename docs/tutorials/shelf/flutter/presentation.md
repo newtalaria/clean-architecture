@@ -11,6 +11,9 @@ The screen is three files plus a tile. The tile is the part you can reuse withou
 Create `lib/ui/book_tile.dart`. It imports Flutter only. The status arrives as a `String` so this file does not need the domain enum. The page passes `book.status.name`.
 
 ```dart
+import 'package:flutter/material.dart';
+
+/// Presentational. This file does not import Riverpod.
 class BookTile extends StatelessWidget {
   const BookTile({
     super.key,
@@ -236,7 +239,63 @@ class ShelfNav extends StatelessWidget {
 }
 ```
 
-`test/widget/books_page_test.dart` overrides `bookRepositoryProvider` with `FakeBookRepository`, enters a title and an author, taps save, and expects the title on screen. That test does not start Serverpod.
+`test/fakes/fake_book_repository.dart` implements the two methods that exist on `BookRepository` in this chapter. The place-control page adds `placeOnShelf`.
+
+```dart
+import 'package:shelf_flutter/domain/book/book.dart';
+import 'package:shelf_flutter/domain/book/book_repository.dart';
+
+class FakeBookRepository implements BookRepository {
+  final books = <String, Book>{};
+
+  @override
+  Future<Book> save(Book book) async {
+    books[book.id] = book;
+    return book;
+  }
+
+  @override
+  Future<List<Book>> list() async {
+    final rows = books.values.toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return rows;
+  }
+}
+```
+
+`test/widget/books_page_test.dart` overrides `bookRepositoryProvider` with `FakeBookRepository`, enters a title and an author, taps save, and expects the title on screen. That test does not start Serverpod. `shelfRepositoryProvider` does not exist yet, so this chapter does not override it.
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:shelf_flutter/app/providers.dart';
+import 'package:shelf_flutter/presentation/features/books/books_page.dart';
+
+import '../fakes/fake_book_repository.dart';
+
+void main() {
+  testWidgets('saving a book shows it in the list', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          bookRepositoryProvider.overrideWithValue(FakeBookRepository()),
+        ],
+        child: const MaterialApp(home: BooksPage()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byKey(const Key('book-title')), 'The Dispossessed');
+    await tester.enterText(find.byKey(const Key('book-author')), 'Le Guin');
+    await tester.tap(find.byKey(const Key('save-book')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('The Dispossessed'), findsOneWidget);
+    expect(find.text('No books yet'), findsNothing);
+  });
+}
+```
 
 ## The route
 
@@ -249,7 +308,31 @@ abstract final class RoutePaths {
 }
 ```
 
-`BooksLocation` is a `BeamLocation` whose `pathPatterns` are `[RoutePaths.books]`. `buildPages` returns one `BeamPage` whose child is a `ScreenReporter` around `BooksPage`. `ScreenReporter` calls `ShelfMonitoring.setScreen` in `initState`. You can leave that call in place now. Until the Talaria chapter, `setScreen` returns immediately when no client exists.
+`BooksLocation` is a `BeamLocation` whose `pathPatterns` are `[RoutePaths.books]`. `buildPages` returns one `BeamPage` whose child is a `ScreenReporter` around `BooksPage`. `ScreenReporter` calls `ShelfMonitoring.setScreen` in `initState`. Write this stub as `lib/bootstrap/talaria_monitoring.dart`. An empty key must not call `TalariaFlutter.init`. The instrumentation chapter replaces this file.
+
+```dart
+import 'package:flutter/widgets.dart';
+import 'package:http/http.dart' as http;
+
+/// Empty-key path. The instrumentation chapter replaces this file.
+/// An empty key must not call TalariaFlutter.init.
+class ShelfMonitoring {
+  ShelfMonitoring._();
+
+  static const apiKey = String.fromEnvironment('TALARIA_API_KEY');
+
+  static bool shouldInit(String key) => key.trim().isNotEmpty;
+
+  static void setScreen(String path, {String? title}) {}
+
+  static http.Client httpClient() => http.Client();
+
+  static Future<void> bootstrap(Future<void> Function() startApp) async {
+    WidgetsFlutterBinding.ensureInitialized();
+    return startApp();
+  }
+}
+```
 
 `lib/presentation/router/books_location.dart`:
 

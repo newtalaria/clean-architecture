@@ -4,9 +4,19 @@ description: Point the client at port 8280, save a book, and see it in the list.
 tags: [clean-architecture, tutorial, flutter]
 ---
 
-`main.dart` is the bootstrap. It builds the `Client`, overrides `clientProvider`, and calls `runApp`. It does not construct a repository. The providers do that.
+`main.dart` is the bootstrap. It builds the `Client`, overrides `clientProvider`, and calls `runApp`. It does not construct a repository. The providers do that. `ShelfMonitoring` is the stub from the books screen.
 
 ```dart
+import 'package:flutter/widgets.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
+import 'package:serverpod_flutter/serverpod_flutter.dart';
+import 'package:shelf_client/shelf_client.dart';
+import 'package:shelf_flutter/app/providers.dart';
+import 'package:shelf_flutter/bootstrap/talaria_monitoring.dart';
+import 'package:shelf_flutter/shelf_app.dart';
+
 const shelfApiUrl = String.fromEnvironment(
   'SHELF_API_URL',
   defaultValue: 'http://localhost:8280/',
@@ -32,9 +42,9 @@ Future<void> main() {
 }
 ```
 
-`usePathUrlStrategy()` runs before `runApp`, so a web session uses `/shelves` in the address bar. Import it from `package:flutter_web_plugins/url_strategy.dart`.
+`usePathUrlStrategy()` runs before `runApp`, so a web session uses `/shelves` in the address bar. Import it from `package:flutter_web_plugins/url_strategy.dart`. The Flutter project page lists `flutter_web_plugins` so that import is a direct dependency.
 
-`ShelfMonitoring.bootstrap` calls `WidgetsFlutterBinding.ensureInitialized()` and then `startApp`. When `TALARIA_API_KEY` is empty, that happens in the root zone. You will put both calls inside one zone in the Talaria chapter. The structure is already the method the chapter fills in. Copy it from the finished `lib/bootstrap/talaria_monitoring.dart` when you get there, or leave the empty-key path in place now. An empty key must not call `TalariaFlutter.init`.
+`ShelfMonitoring.bootstrap` calls `WidgetsFlutterBinding.ensureInitialized()` and then `startApp`. When `TALARIA_API_KEY` is empty, that happens in the root zone. The instrumentation chapter replaces the stub and puts both calls inside one zone. An empty key must not call `TalariaFlutter.init`.
 
 Start the server if it is not running:
 

@@ -4,7 +4,7 @@ description: Optional init, one zone around the binding and runApp, HTTP wrap, s
 tags: [clean-architecture, tutorial, flutter]
 ---
 
-`lib/bootstrap/talaria_monitoring.dart` is `ShelfMonitoring`. An empty `TALARIA_API_KEY` keeps the SDK off. The key is a `String.fromEnvironment`, so a normal `flutter run` does not turn it on.
+Replace `lib/bootstrap/talaria_monitoring.dart` from the books screen with this file. `ShelfMonitoring` is the same class. An empty `TALARIA_API_KEY` keeps the SDK off. The key is a `String.fromEnvironment`, so a normal `flutter run` does not turn it on.
 
 ```dart
 import 'dart:async';

@@ -78,4 +78,12 @@ class AppDi {
 
 `dart analyze lib` should be clean once the shelf types exist. Until then, keep the shelf lines out and analyze the book slice.
 
+`di.dart` is what the book endpoint imports. Generate now so `Endpoints` registers `book`:
+
+```bash
+serverpod generate
+```
+
+Open `lib/src/generated/endpoints.dart` and confirm the `'book'` connector has `save` and `list`. If the method is missing, the class does not extend `Endpoint`, or the method is private, or you did not generate after saving the file.
+
 Next: [the integration test](integration.md).
