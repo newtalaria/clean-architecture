@@ -242,27 +242,56 @@ final listShelvesUseCaseProvider = Provider<ListShelvesUseCase>((ref) {
 
 ## Presentation
 
-`lib/ui/shelf_tile.dart`:
+`lib/ui/shelf_tile.dart` uses the same card as a book. The subtitle stays `Capacity $capacity`.
 
 ```dart
 import 'package:flutter/material.dart';
 
 /// Presentational. This file does not import Riverpod.
 class ShelfTile extends StatelessWidget {
-  const ShelfTile({
-    super.key,
-    required this.name,
-    required this.capacity,
-  });
+  const ShelfTile({super.key, required this.name, required this.capacity});
 
   final String name;
   final int capacity;
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(name),
-      subtitle: Text('Capacity $capacity'),
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: theme.colorScheme.outline),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          child: Row(
+            children: [
+              Icon(
+                Icons.bookmarks_outlined,
+                size: 20,
+                color: theme.colorScheme.secondary,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(name, style: theme.textTheme.titleMedium),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Capacity $capacity',
+                      style: theme.textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -323,13 +352,14 @@ final shelvesProvider = AsyncNotifierProvider<ShelvesNotifier, List<Shelf>>(
 );
 ```
 
-`lib/presentation/features/shelves/shelves_page.dart` is the form and the list. It does not contain the place row.
+`lib/presentation/features/shelves/shelves_page.dart` is the form and the list. It uses `ShelfFrame` and `ShelfPanel` from the books screen. It does not contain the place control.
 
 ```dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shelf_flutter/presentation/app/shelf_nav.dart';
 import 'package:shelf_flutter/presentation/features/shelves/shelves_notifier.dart';
+import 'package:shelf_flutter/ui/shelf_frame.dart';
 import 'package:shelf_flutter/ui/shelf_tile.dart';
 
 class ShelvesPage extends ConsumerStatefulWidget {
@@ -354,57 +384,82 @@ class _ShelvesPageState extends ConsumerState<ShelvesPage> {
   @override
   Widget build(BuildContext context) {
     final shelves = ref.watch(shelvesProvider);
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const ShelfNav(),
-            TextField(
-              key: const Key('shelf-name'),
-              controller: _name,
-              decoration: const InputDecoration(labelText: 'Name'),
+    final theme = Theme.of(context);
+    return ShelfFrame(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const ShelfNav(section: ShelfSection.shelves),
+          const SizedBox(height: 20),
+          ShelfPanel(
+            title: 'New shelf',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextField(
+                  key: const Key('shelf-name'),
+                  controller: _name,
+                  textInputAction: TextInputAction.next,
+                  decoration: const InputDecoration(labelText: 'Name'),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  key: const Key('shelf-capacity'),
+                  controller: _capacity,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Capacity'),
+                ),
+                if (_error != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    _error!,
+                    style: TextStyle(color: theme.colorScheme.error),
+                  ),
+                ],
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: FilledButton(
+                    key: const Key('save-shelf'),
+                    onPressed: () async {
+                      final capacity = int.tryParse(_capacity.text.trim()) ?? 0;
+                      final message = await ref
+                          .read(shelvesProvider.notifier)
+                          .save(name: _name.text, capacity: capacity);
+                      if (!mounted) return;
+                      setState(() => _error = message);
+                      if (message == null) _name.clear();
+                    },
+                    child: const Text('Save shelf'),
+                  ),
+                ),
+              ],
             ),
-            TextField(
-              key: const Key('shelf-capacity'),
-              controller: _capacity,
-              decoration: const InputDecoration(labelText: 'Capacity'),
-              keyboardType: TextInputType.number,
-            ),
-            if (_error != null) Text(_error!),
-            const SizedBox(height: 8),
-            FilledButton(
-              key: const Key('save-shelf'),
-              onPressed: () async {
-                final capacity = int.tryParse(_capacity.text.trim()) ?? 0;
-                final message = await ref
-                    .read(shelvesProvider.notifier)
-                    .save(name: _name.text, capacity: capacity);
-                if (!mounted) return;
-                setState(() => _error = message);
-                if (message == null) _name.clear();
-              },
-              child: const Text('Save shelf'),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: shelves.when(
-                data: (items) {
-                  if (items.isEmpty) return const Text('No shelves yet');
-                  return ListView(
-                    children: [
-                      for (final shelf in items)
-                        ShelfTile(name: shelf.name, capacity: shelf.capacity),
-                    ],
+          ),
+          const SizedBox(height: 22),
+          Text('Shelves', style: theme.textTheme.titleMedium),
+          const SizedBox(height: 10),
+          Expanded(
+            child: shelves.when(
+              data: (items) {
+                if (items.isEmpty) {
+                  return const ShelfEmpty(
+                    message: 'No shelves yet',
+                    hint: 'Give a shelf a name and how many books it holds.',
                   );
-                },
-                loading: () => const Text('Loading'),
-                error: (error, _) => Text(error.toString()),
-              ),
+                }
+                return ListView(
+                  children: [
+                    for (final shelf in items)
+                      ShelfTile(name: shelf.name, capacity: shelf.capacity),
+                  ],
+                );
+              },
+              loading: () => const Text('Loading'),
+              error: (error, _) => Text(error.toString()),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

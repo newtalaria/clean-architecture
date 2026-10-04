@@ -22,6 +22,7 @@ abstract class BookDto
     required this.status,
     this.shelfId,
     required this.createdAt,
+    required this.favorite,
   });
 
   factory BookDto({
@@ -31,6 +32,7 @@ abstract class BookDto
     required _ifap2468.ReadingStatusWire status,
     _isc.UuidValue? shelfId,
     required DateTime createdAt,
+    required bool favorite,
   }) = _BookDtoImpl;
 
   factory BookDto.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -47,6 +49,7 @@ abstract class BookDto
       createdAt: _isc.DateTimeJsonExtension.fromJson(
         jsonSerialization['createdAt'],
       ),
+      favorite: _isc.BoolJsonExtension.fromJson(jsonSerialization['favorite']),
     );
   }
 
@@ -62,6 +65,8 @@ abstract class BookDto
 
   DateTime createdAt;
 
+  bool favorite;
+
   /// Returns a shallow copy of this [BookDto]
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
@@ -72,6 +77,7 @@ abstract class BookDto
     _ifap2468.ReadingStatusWire? status,
     _isc.UuidValue? shelfId,
     DateTime? createdAt,
+    bool? favorite,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -83,6 +89,7 @@ abstract class BookDto
       'status': status.toJson(),
       if (shelfId != null) 'shelfId': shelfId?.toJson(),
       'createdAt': createdAt.toJson(),
+      'favorite': favorite,
     };
   }
 
@@ -96,6 +103,7 @@ abstract class BookDto
       'status': status.toJson(),
       if (shelfId != null) 'shelfId': shelfId?.toJson(),
       'createdAt': createdAt.toJson(),
+      'favorite': favorite,
     };
   }
 
@@ -115,6 +123,7 @@ class _BookDtoImpl extends BookDto {
     required _ifap2468.ReadingStatusWire status,
     _isc.UuidValue? shelfId,
     required DateTime createdAt,
+    required bool favorite,
   }) : super._(
          id: id,
          title: title,
@@ -122,6 +131,7 @@ class _BookDtoImpl extends BookDto {
          status: status,
          shelfId: shelfId,
          createdAt: createdAt,
+         favorite: favorite,
        );
 
   /// Returns a shallow copy of this [BookDto]
@@ -135,6 +145,7 @@ class _BookDtoImpl extends BookDto {
     _ifap2468.ReadingStatusWire? status,
     Object? shelfId = _Undefined,
     DateTime? createdAt,
+    bool? favorite,
   }) {
     return BookDto(
       id: id ?? this.id,
@@ -143,6 +154,7 @@ class _BookDtoImpl extends BookDto {
       status: status ?? this.status,
       shelfId: shelfId is _isc.UuidValue? ? shelfId : this.shelfId,
       createdAt: createdAt ?? this.createdAt,
+      favorite: favorite ?? this.favorite,
     );
   }
 }

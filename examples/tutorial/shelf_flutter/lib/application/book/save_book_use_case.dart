@@ -8,11 +8,7 @@ import 'package:shelf_flutter/domain/book/book_repository.dart';
 ///
 /// The id used for validation is replaced by the id the server returns.
 class SaveBookUseCase {
-  const SaveBookUseCase(
-    this._books, {
-    required this.clock,
-    required this.ids,
-  });
+  const SaveBookUseCase(this._books, {required this.clock, required this.ids});
 
   final BookRepository _books;
   final Clock clock;

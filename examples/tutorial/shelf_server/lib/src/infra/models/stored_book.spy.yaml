@@ -9,6 +9,7 @@ fields:
   status: String
   shelfId: UuidValue?
   createdAt: DateTime
+  favorite: bool, default=false
 indexes:
   stored_book_shelf_id_idx:
     fields: shelfId

@@ -25,6 +25,15 @@ class BookEndpoint extends Endpoint {
     });
   }
 
+  Future<BookDto> setFavorite(Session session, SetBookFavoriteInput input) {
+    return runUseCase(() async {
+      final book = await _useCases
+          .setBookFavorite(session)
+          .execute(bookId: input.bookId.toString(), favorite: input.favorite);
+      return _mappers.toDto(book);
+    });
+  }
+
   Future<BookListResponse> list(Session session) {
     return runUseCase(() async {
       final books = await _useCases.listBooks(session).execute();

@@ -25,20 +25,45 @@ void main() {
       expect(listed.books.single.id, saved.id);
     });
 
-    test('a blank title is a validation exception and writes nothing', () async {
-      expect(
-        () => endpoints.book.save(
-          sessionBuilder,
-          SaveBookInput(
-            title: ' ',
-            authorName: 'Le Guin',
-            status: ReadingStatusWire.unread,
+    test(
+      'a blank title is a validation exception and writes nothing',
+      () async {
+        expect(
+          () => endpoints.book.save(
+            sessionBuilder,
+            SaveBookInput(
+              title: ' ',
+              authorName: 'Le Guin',
+              status: ReadingStatusWire.unread,
+            ),
           ),
+          throwsA(isA<ApiValidationException>()),
+        );
+        final listed = await endpoints.book.list(sessionBuilder);
+        expect(listed.books, isEmpty);
+      },
+    );
+
+    test('setFavorite persists and list returns the flag', () async {
+      final saved = await endpoints.book.save(
+        sessionBuilder,
+        SaveBookInput(
+          title: 'The Dispossessed',
+          authorName: 'Le Guin',
+          status: ReadingStatusWire.unread,
         ),
-        throwsA(isA<ApiValidationException>()),
       );
+      expect(saved.favorite, isFalse);
+
+      final loved = await endpoints.book.setFavorite(
+        sessionBuilder,
+        SetBookFavoriteInput(bookId: saved.id, favorite: true),
+      );
+      expect(loved.favorite, isTrue);
+      expect(loved.id, saved.id);
+
       final listed = await endpoints.book.list(sessionBuilder);
-      expect(listed.books, isEmpty);
+      expect(listed.books.single.favorite, isTrue);
     });
   });
 

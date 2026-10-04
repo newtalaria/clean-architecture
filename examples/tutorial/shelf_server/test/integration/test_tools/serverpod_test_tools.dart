@@ -21,6 +21,8 @@ import 'package:shelf_server/src/generated/presentation/book/dto/book_list_respo
     as _i0rhr248;
 import 'package:shelf_server/src/generated/presentation/book/input/save_book_input.dart'
     as _i7mvohtk;
+import 'package:shelf_server/src/generated/presentation/book/input/set_book_favorite_input.dart'
+    as _i782z0q9;
 import 'package:shelf_server/src/generated/presentation/shelf/dto/shelf_dto.dart'
     as _i1xk547e;
 import 'package:shelf_server/src/generated/presentation/shelf/dto/shelf_list_response.dart'
@@ -205,6 +207,37 @@ class _BookEndpoint {
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'book',
           methodName: 'save',
+          parameters: _ist.testObjectToJson({'input': input}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_ibhz2esk.BookDto>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_ibhz2esk.BookDto> setFavorite(
+    _ist.TestSessionBuilder sessionBuilder,
+    _i782z0q9.SetBookFavoriteInput input,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'book',
+            method: 'setFavorite',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'book',
+          methodName: 'setFavorite',
           parameters: _ist.testObjectToJson({'input': input}),
           serializationManager: _serializationManager,
         );

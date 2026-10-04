@@ -13,6 +13,8 @@ void main() {
       createdAt: DateTime.utc(2026, 10, 3),
     );
     expect(book.title, 'The Dispossessed');
+    expect(book.favorite, isFalse);
+    expect(book.setFavorite(true).favorite, isTrue);
   });
 
   test('a blank title is rejected', () {

@@ -45,6 +45,13 @@ class BookMapper extends ClassMapperBase<Book> {
     _$shelfId,
     opt: true,
   );
+  static bool _$favorite(Book v) => v.favorite;
+  static const Field<Book, bool> _f$favorite = Field(
+    'favorite',
+    _$favorite,
+    opt: true,
+    def: false,
+  );
 
   @override
   final MappableFields<Book> fields = const {
@@ -54,6 +61,7 @@ class BookMapper extends ClassMapperBase<Book> {
     #status: _f$status,
     #createdAt: _f$createdAt,
     #shelfId: _f$shelfId,
+    #favorite: _f$favorite,
   };
 
   static Book _instantiate(DecodingData data) {
@@ -64,6 +72,7 @@ class BookMapper extends ClassMapperBase<Book> {
       status: data.dec(_f$status),
       createdAt: data.dec(_f$createdAt),
       shelfId: data.dec(_f$shelfId),
+      favorite: data.dec(_f$favorite),
     );
   }
 
@@ -120,6 +129,7 @@ abstract class BookCopyWith<$R, $In extends Book, $Out>
     ReadingStatus? status,
     DateTime? createdAt,
     String? shelfId,
+    bool? favorite,
   });
   BookCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(Then<$Out2, $R2> t);
 }
@@ -138,6 +148,7 @@ class _BookCopyWithImpl<$R, $Out> extends ClassCopyWithBase<$R, Book, $Out>
     ReadingStatus? status,
     DateTime? createdAt,
     Object? shelfId = $none,
+    bool? favorite,
   }) => $apply(
     FieldCopyWithData({
       if (id != null) #id: id,
@@ -146,6 +157,7 @@ class _BookCopyWithImpl<$R, $Out> extends ClassCopyWithBase<$R, Book, $Out>
       if (status != null) #status: status,
       if (createdAt != null) #createdAt: createdAt,
       if (shelfId != $none) #shelfId: shelfId,
+      if (favorite != null) #favorite: favorite,
     }),
   );
   @override
@@ -156,6 +168,7 @@ class _BookCopyWithImpl<$R, $Out> extends ClassCopyWithBase<$R, Book, $Out>
     status: data.get(#status, or: $value.status),
     createdAt: data.get(#createdAt, or: $value.createdAt),
     shelfId: data.get(#shelfId, or: $value.shelfId),
+    favorite: data.get(#favorite, or: $value.favorite),
   );
 
   @override

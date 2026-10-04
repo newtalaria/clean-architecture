@@ -8,4 +8,6 @@ abstract interface class BookRepository {
 
   /// Calls the server use case that coordinates books and shelves.
   Future<Book> placeOnShelf({required String bookId, required String shelfId});
+
+  Future<Book> setFavorite({required String bookId, required bool favorite});
 }

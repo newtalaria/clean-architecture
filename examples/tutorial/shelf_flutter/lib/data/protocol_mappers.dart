@@ -18,6 +18,7 @@ class ProtocolMappers {
       status: ReadingStatus.values.byName(dto.status.name),
       shelfId: dto.shelfId?.toString(),
       createdAt: dto.createdAt,
+      favorite: dto.favorite,
     );
   }
 

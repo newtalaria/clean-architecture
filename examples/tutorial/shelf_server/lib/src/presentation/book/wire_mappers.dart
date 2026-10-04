@@ -15,6 +15,7 @@ class BookWireMappers {
       status: ReadingStatusWire.values.byName(book.status.name),
       shelfId: book.shelfId == null ? null : uuidFromString(book.shelfId!),
       createdAt: book.createdAt,
+      favorite: book.favorite,
     );
   }
 

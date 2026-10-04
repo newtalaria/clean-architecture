@@ -43,4 +43,22 @@ class ServerpodBookRepository implements BookRepository {
       _mappers.throwDomain(error);
     }
   }
+
+  @override
+  Future<Book> setFavorite({
+    required String bookId,
+    required bool favorite,
+  }) async {
+    try {
+      final dto = await _client.book.setFavorite(
+        SetBookFavoriteInput(
+          bookId: UuidValue.fromString(bookId),
+          favorite: favorite,
+        ),
+      );
+      return _mappers.toBook(dto);
+    } catch (error) {
+      _mappers.throwDomain(error);
+    }
+  }
 }

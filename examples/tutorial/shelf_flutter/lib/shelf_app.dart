@@ -4,6 +4,7 @@ import 'package:talaria_flutter/talaria_flutter.dart';
 import 'package:shelf_flutter/presentation/router/books_location.dart';
 import 'package:shelf_flutter/presentation/router/route_paths.dart';
 import 'package:shelf_flutter/presentation/router/shelves_location.dart';
+import 'package:shelf_flutter/ui/shelf_theme.dart';
 
 class ShelfApp extends StatefulWidget {
   const ShelfApp({super.key});
@@ -24,6 +25,7 @@ class _ShelfAppState extends State<ShelfApp> {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'Shelf',
+      theme: shelfTheme(),
       routerDelegate: _router,
       routeInformationParser: BeamerParser(),
       backButtonDispatcher: BeamerBackButtonDispatcher(delegate: _router),

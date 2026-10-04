@@ -1,5 +1,6 @@
 book:
   - save:
+  - setFavorite:
   - list:
 shelf:
   - save:

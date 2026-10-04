@@ -53,4 +53,21 @@ void main() {
     expect(placed.shelfId, 'shelf-1');
     expect(() => placed.placeOnShelf('shelf-2'), throwsA(isA<Conflict>()));
   });
+
+  test('setFavorite keeps the shelf and placeOnShelf keeps the flag', () {
+    final book = Book.create(
+      id: 'b1',
+      title: 'The Dispossessed',
+      authorName: 'Le Guin',
+      status: ReadingStatus.unread,
+      createdAt: created,
+    );
+    expect(book.favorite, isFalse);
+    final loved = book.setFavorite(true);
+    expect(loved.favorite, isTrue);
+    expect(loved.shelfId, isNull);
+    final placed = loved.placeOnShelf('shelf-1');
+    expect(placed.favorite, isTrue);
+    expect(placed.shelfId, 'shelf-1');
+  });
 }

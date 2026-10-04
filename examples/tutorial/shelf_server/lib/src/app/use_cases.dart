@@ -1,6 +1,7 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:shelf_server/src/application/book/list_books_use_case.dart';
 import 'package:shelf_server/src/application/book/save_book_use_case.dart';
+import 'package:shelf_server/src/application/book/set_book_favorite_use_case.dart';
 import 'package:shelf_server/src/application/ports/clock.dart';
 import 'package:shelf_server/src/application/ports/id_generator.dart';
 import 'package:shelf_server/src/application/shelf/list_shelves_use_case.dart';
@@ -25,6 +26,10 @@ class UseCases {
 
   ListBooksUseCase listBooks(Session session) {
     return ListBooksUseCase(_repositories.books(session));
+  }
+
+  SetBookFavoriteUseCase setBookFavorite(Session session) {
+    return SetBookFavoriteUseCase(_repositories.books(session));
   }
 
   SaveShelfUseCase saveShelf(Session session) {

@@ -20,12 +20,44 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.enterText(find.byKey(const Key('book-title')), 'The Dispossessed');
+    await tester.enterText(
+      find.byKey(const Key('book-title')),
+      'The Dispossessed',
+    );
     await tester.enterText(find.byKey(const Key('book-author')), 'Le Guin');
     await tester.tap(find.byKey(const Key('save-book')));
     await tester.pumpAndSettle();
 
     expect(find.text('The Dispossessed'), findsOneWidget);
     expect(find.text('No books yet'), findsNothing);
+  });
+
+  testWidgets('favourite toggles the heart', (tester) async {
+    final books = FakeBookRepository();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          bookRepositoryProvider.overrideWithValue(books),
+          shelfRepositoryProvider.overrideWithValue(FakeShelfRepository()),
+        ],
+        child: const MaterialApp(home: BooksPage()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byKey(const Key('book-title')),
+      'The Dispossessed',
+    );
+    await tester.enterText(find.byKey(const Key('book-author')), 'Le Guin');
+    await tester.tap(find.byKey(const Key('save-book')));
+    await tester.pumpAndSettle();
+
+    expect(find.byIcon(Icons.favorite_border), findsOneWidget);
+    await tester.tap(find.byKey(const Key('favorite-The Dispossessed')));
+    await tester.pumpAndSettle();
+
+    expect(books.books.values.single.favorite, isTrue);
+    expect(find.byIcon(Icons.favorite), findsOneWidget);
   });
 }

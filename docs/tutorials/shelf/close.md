@@ -23,6 +23,18 @@ ShelfEndpoint.place
 
 The Flutter button stops at `PlaceBookOnShelfUseCase`, which stops at `BookRepository.placeOnShelf`, which stops at `client.shelf.place`. The capacity rule is not in the button.
 
+A favourite is the same shape on one repository.
+
+```text
+BookEndpoint.setFavorite
+  -> SetBookFavoriteUseCase.execute
+       -> BookRepository.findById
+       -> Book.setFavorite
+       -> BookRepository.save
+```
+
+The heart stops at `SetBookFavoriteUseCase`. The tile does not import Riverpod. It receives `favorite` and `onFavorite`.
+
 The three short courses build a notes API in each layout if you want to diff a smaller tree:
 
 - [Serverpod](../../serverpod/README.md), including the [hybrid](../../serverpod/hybrid/README.md) track this tutorial follows and the [layer-first](../../serverpod/layer-first/README.md) track a large existing server may already use

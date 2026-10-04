@@ -8,35 +8,91 @@ The screen is three files plus a tile. The tile is the part you can reuse withou
 
 ## The tile
 
-Create `lib/ui/book_tile.dart`. It imports Flutter only. The status arrives as a `String` so this file does not need the domain enum. The page passes `book.status.name`.
+Create `lib/ui/book_tile.dart`. It imports Flutter only. The status arrives as a `String` so this file does not need the domain enum. The page passes `book.status.name`. The subtitle stays `'$authorName · $status'`.
+
+The tile takes an optional `onFavorite`. Leave it unset in this chapter. The favourite chapter passes it, and the heart is drawn only when that callback is set.
 
 ```dart
 import 'package:flutter/material.dart';
 
 /// Presentational. This file does not import Riverpod.
+///
+/// [onFavorite] is null until the favourite chapter wires the heart.
 class BookTile extends StatelessWidget {
   const BookTile({
     super.key,
     required this.title,
     required this.authorName,
     required this.status,
+    this.favorite = false,
+    this.onFavorite,
   });
 
   final String title;
   final String authorName;
   final String status;
+  final bool favorite;
+  final VoidCallback? onFavorite;
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(title),
-      subtitle: Text('$authorName · $status'),
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: theme.colorScheme.outline),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 12, 6, 12),
+          child: Row(
+            children: [
+              Container(
+                width: 4,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: theme.textTheme.titleMedium),
+                    const SizedBox(height: 2),
+                    Text(
+                      '$authorName · $status',
+                      style: theme.textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+              if (onFavorite != null)
+                IconButton(
+                  key: Key('favorite-$title'),
+                  tooltip: favorite ? 'Remove favourite' : 'Favourite',
+                  onPressed: onFavorite,
+                  icon: Icon(
+                    favorite ? Icons.favorite : Icons.favorite_border,
+                    color: favorite
+                        ? theme.colorScheme.primary
+                        : theme.textTheme.bodySmall?.color,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
 ```
 
-`test/widget/book_tile_test.dart` pumps the tile inside a `MaterialApp` whose home is a `Scaffold`. `ListTile` throws `No Material widget found` when the home is only the tile. The test does not wrap the tile in `ProviderScope`. If that test needs a scope, the tile has started to read a provider.
+`test/widget/book_tile_test.dart` pumps the tile inside a `MaterialApp` whose home is a `Scaffold`, so `Theme.of` resolves. The test does not wrap the tile in `ProviderScope`. If that test needs a scope, the tile has started to read a provider. It does not pass `onFavorite`, so the heart is absent.
 
 ```dart
 import 'package:flutter/material.dart';
@@ -116,7 +172,173 @@ final booksProvider = AsyncNotifierProvider<BooksNotifier, List<Book>>(
 
 Keys `book-title`, `book-author`, and `save-book` exist so the widget test can find the fields without matching on decoration text.
 
-Empty, loading, and error are the three branches of `books.when`. An empty shelf says `No books yet`.
+Empty, loading, and error are the three branches of `books.when`. An empty library says `No books yet`.
+
+The screen sits on a warm paper background, ink text, and one copper accent. `ShelfFrame` keeps the column on a reading width. `ShelfPanel` is the form card. `ShelfEmpty` is the empty library. The favourite chapter does not change these files.
+
+`lib/ui/shelf_theme.dart`:
+
+```dart
+import 'package:flutter/material.dart';
+
+/// Warm paper, ink, and one copper accent. Screens share this theme.
+ThemeData shelfTheme() {
+  const ink = Color(0xFF1C1915);
+  const paper = Color(0xFFF3EDE3);
+  const card = Color(0xFFFFFBF6);
+  const line = Color(0xFFE4D8C8);
+  const accent = Color(0xFF8C3A2F);
+  const muted = Color(0xFF6F655C);
+
+  final scheme = ColorScheme.light(
+    primary: accent,
+    onPrimary: Colors.white,
+    secondary: const Color(0xFF3D5A4C),
+    surface: card,
+    onSurface: ink,
+    error: const Color(0xFF9B2C2C),
+    outline: line,
+  );
+
+  final outline = OutlineInputBorder(
+    borderRadius: BorderRadius.circular(10),
+    borderSide: const BorderSide(color: line),
+  );
+
+  return ThemeData(
+    useMaterial3: true,
+    colorScheme: scheme,
+    scaffoldBackgroundColor: paper,
+    dividerColor: line,
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: paper,
+      labelStyle: const TextStyle(color: muted),
+      border: outline,
+      enabledBorder: outline,
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: accent, width: 1.4),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        backgroundColor: accent,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        textStyle: const TextStyle(fontWeight: FontWeight.w600),
+      ),
+    ),
+    textTheme: const TextTheme(
+      titleLarge: TextStyle(
+        color: ink,
+        fontSize: 22,
+        fontWeight: FontWeight.w600,
+        letterSpacing: -0.4,
+      ),
+      titleMedium: TextStyle(
+        color: ink,
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+        letterSpacing: -0.2,
+      ),
+      bodyMedium: TextStyle(color: ink, fontSize: 14, height: 1.35),
+      bodySmall: TextStyle(color: muted, fontSize: 13),
+    ),
+  );
+}
+```
+
+`lib/ui/shelf_frame.dart`:
+
+```dart
+import 'package:flutter/material.dart';
+
+/// Centers the screen on a reading width. Pages put their column in [child].
+class ShelfFrame extends StatelessWidget {
+  const ShelfFrame({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 720),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 28),
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A titled card for a form or a short control.
+class ShelfPanel extends StatelessWidget {
+  const ShelfPanel({super.key, required this.title, required this.child});
+
+  final String title;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: theme.colorScheme.outline),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(title, style: theme.textTheme.titleMedium),
+            const SizedBox(height: 12),
+            child,
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Empty list copy. [message] is the line the widget tests look for.
+class ShelfEmpty extends StatelessWidget {
+  const ShelfEmpty({super.key, required this.message, required this.hint});
+
+  final String message;
+  final String hint;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.menu_book_outlined,
+            size: 28,
+            color: theme.colorScheme.primary,
+          ),
+          const SizedBox(height: 10),
+          Text(message, style: theme.textTheme.titleMedium),
+          const SizedBox(height: 4),
+          Text(hint, style: theme.textTheme.bodySmall),
+        ],
+      ),
+    );
+  }
+}
+```
 
 `lib/presentation/features/books/books_page.dart`:
 
@@ -126,6 +348,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shelf_flutter/presentation/app/shelf_nav.dart';
 import 'package:shelf_flutter/presentation/features/books/books_notifier.dart';
 import 'package:shelf_flutter/ui/book_tile.dart';
+import 'package:shelf_flutter/ui/shelf_frame.dart';
 
 class BooksPage extends ConsumerStatefulWidget {
   const BooksPage({super.key});
@@ -149,91 +372,157 @@ class _BooksPageState extends ConsumerState<BooksPage> {
   @override
   Widget build(BuildContext context) {
     final books = ref.watch(booksProvider);
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const ShelfNav(),
-            TextField(
-              key: const Key('book-title'),
-              controller: _title,
-              decoration: const InputDecoration(labelText: 'Title'),
+    final theme = Theme.of(context);
+    return ShelfFrame(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const ShelfNav(section: ShelfSection.books),
+          const SizedBox(height: 20),
+          ShelfPanel(
+            title: 'Add a book',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextField(
+                  key: const Key('book-title'),
+                  controller: _title,
+                  textInputAction: TextInputAction.next,
+                  decoration: const InputDecoration(labelText: 'Title'),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  key: const Key('book-author'),
+                  controller: _author,
+                  textInputAction: TextInputAction.done,
+                  decoration: const InputDecoration(labelText: 'Author'),
+                ),
+                if (_error != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    _error!,
+                    style: TextStyle(color: theme.colorScheme.error),
+                  ),
+                ],
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: FilledButton(
+                    key: const Key('save-book'),
+                    onPressed: () async {
+                      final message = await ref
+                          .read(booksProvider.notifier)
+                          .save(title: _title.text, authorName: _author.text);
+                      if (!mounted) return;
+                      setState(() => _error = message);
+                      if (message == null) {
+                        _title.clear();
+                        _author.clear();
+                      }
+                    },
+                    child: const Text('Save book'),
+                  ),
+                ),
+              ],
             ),
-            TextField(
-              key: const Key('book-author'),
-              controller: _author,
-              decoration: const InputDecoration(labelText: 'Author'),
-            ),
-            if (_error != null) Text(_error!),
-            const SizedBox(height: 8),
-            FilledButton(
-              key: const Key('save-book'),
-              onPressed: () async {
-                final message = await ref
-                    .read(booksProvider.notifier)
-                    .save(title: _title.text, authorName: _author.text);
-                if (!mounted) return;
-                setState(() => _error = message);
-                if (message == null) {
-                  _title.clear();
-                  _author.clear();
-                }
-              },
-              child: const Text('Save book'),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: books.when(
-                data: (items) {
-                  if (items.isEmpty) return const Text('No books yet');
-                  return ListView(
-                    children: [
-                      for (final book in items)
-                        BookTile(
-                          title: book.title,
-                          authorName: book.authorName,
-                          status: book.status.name,
-                        ),
-                    ],
+          ),
+          const SizedBox(height: 22),
+          Text('Library', style: theme.textTheme.titleMedium),
+          const SizedBox(height: 10),
+          Expanded(
+            child: books.when(
+              data: (items) {
+                if (items.isEmpty) {
+                  return const ShelfEmpty(
+                    message: 'No books yet',
+                    hint: 'Save a title and it will show up here.',
                   );
-                },
-                loading: () => const Text('Loading'),
-                error: (error, _) => Text(error.toString()),
-              ),
+                }
+                return ListView(
+                  children: [
+                    for (final book in items)
+                      BookTile(
+                        title: book.title,
+                        authorName: book.authorName,
+                        status: book.status.name,
+                      ),
+                  ],
+                );
+              },
+              loading: () => const Text('Loading'),
+              error: (error, _) => Text(error.toString()),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 ```
 
-`lib/presentation/app/shelf_nav.dart` calls `context.beamToNamed`. Navigation stays in presentation. The tile does not know the routes.
+`lib/presentation/app/shelf_nav.dart` calls `context.beamToNamed` from the button press. It does not call `Beamer.of` while building, so a widget test can pump the page without a router. Navigation stays in presentation. The tile does not know the routes. Pass `ShelfSection.books` from this page and `ShelfSection.shelves` from the shelves page.
 
 ```dart
 import 'package:beamer/beamer.dart';
 import 'package:flutter/material.dart';
 import 'package:shelf_flutter/presentation/router/route_paths.dart';
 
+enum ShelfSection { books, shelves }
+
 class ShelfNav extends StatelessWidget {
-  const ShelfNav({super.key});
+  const ShelfNav({super.key, required this.section});
+
+  final ShelfSection section;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Row(
       children: [
-        TextButton(
+        Text('Shelf', style: theme.textTheme.titleLarge),
+        const Spacer(),
+        _NavButton(
+          label: 'Books',
+          selected: section == ShelfSection.books,
           onPressed: () => context.beamToNamed(RoutePaths.books),
-          child: const Text('Books'),
         ),
-        TextButton(
+        const SizedBox(width: 4),
+        _NavButton(
+          label: 'Shelves',
+          selected: section == ShelfSection.shelves,
           onPressed: () => context.beamToNamed(RoutePaths.shelves),
-          child: const Text('Shelves'),
         ),
       ],
+    );
+  }
+}
+
+class _NavButton extends StatelessWidget {
+  const _NavButton({
+    required this.label,
+    required this.selected,
+    required this.onPressed,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return TextButton(
+      onPressed: onPressed,
+      style: TextButton.styleFrom(
+        foregroundColor: theme.colorScheme.onSurface,
+        backgroundColor: selected
+            ? theme.colorScheme.primary.withValues(alpha: 0.12)
+            : Colors.transparent,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        textStyle: const TextStyle(fontWeight: FontWeight.w600),
+      ),
+      child: Text(label),
     );
   }
 }
@@ -401,6 +690,7 @@ import 'package:flutter/material.dart';
 import 'package:talaria_flutter/talaria_flutter.dart';
 import 'package:shelf_flutter/presentation/router/books_location.dart';
 import 'package:shelf_flutter/presentation/router/route_paths.dart';
+import 'package:shelf_flutter/ui/shelf_theme.dart';
 
 class ShelfApp extends StatefulWidget {
   const ShelfApp({super.key});
@@ -421,6 +711,7 @@ class _ShelfAppState extends State<ShelfApp> {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'Shelf',
+      theme: shelfTheme(),
       routerDelegate: _router,
       routeInformationParser: BeamerParser(),
       backButtonDispatcher: BeamerBackButtonDispatcher(delegate: _router),

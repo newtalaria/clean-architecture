@@ -22,7 +22,8 @@ abstract class StoredBook
     required this.status,
     this.shelfId,
     required this.createdAt,
-  });
+    bool? favorite,
+  }) : favorite = favorite ?? false;
 
   factory StoredBook({
     _is.UuidValue? id,
@@ -31,6 +32,7 @@ abstract class StoredBook
     required String status,
     _is.UuidValue? shelfId,
     required DateTime createdAt,
+    bool? favorite,
   }) = _StoredBookImpl;
 
   factory StoredBook.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -47,6 +49,9 @@ abstract class StoredBook
       createdAt: _is.DateTimeJsonExtension.fromJson(
         jsonSerialization['createdAt'],
       ),
+      favorite: jsonSerialization['favorite'] == null
+          ? null
+          : _is.BoolJsonExtension.fromJson(jsonSerialization['favorite']),
     );
   }
 
@@ -67,6 +72,8 @@ abstract class StoredBook
 
   DateTime createdAt;
 
+  bool favorite;
+
   @override
   _is.Table<_is.UuidValue?> get table => t;
 
@@ -80,6 +87,7 @@ abstract class StoredBook
     String? status,
     _is.UuidValue? shelfId,
     DateTime? createdAt,
+    bool? favorite,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -91,6 +99,7 @@ abstract class StoredBook
       'status': status,
       if (shelfId != null) 'shelfId': shelfId?.toJson(),
       'createdAt': createdAt.toJson(),
+      'favorite': favorite,
     };
   }
 
@@ -137,6 +146,7 @@ class _StoredBookImpl extends StoredBook {
     required String status,
     _is.UuidValue? shelfId,
     required DateTime createdAt,
+    bool? favorite,
   }) : super._(
          id: id,
          title: title,
@@ -144,6 +154,7 @@ class _StoredBookImpl extends StoredBook {
          status: status,
          shelfId: shelfId,
          createdAt: createdAt,
+         favorite: favorite,
        );
 
   /// Returns a shallow copy of this [StoredBook]
@@ -157,6 +168,7 @@ class _StoredBookImpl extends StoredBook {
     String? status,
     Object? shelfId = _Undefined,
     DateTime? createdAt,
+    bool? favorite,
   }) {
     return StoredBook(
       id: id is _is.UuidValue? ? id : this.id,
@@ -165,6 +177,7 @@ class _StoredBookImpl extends StoredBook {
       status: status ?? this.status,
       shelfId: shelfId is _is.UuidValue? ? shelfId : this.shelfId,
       createdAt: createdAt ?? this.createdAt,
+      favorite: favorite ?? this.favorite,
     );
   }
 }
@@ -198,6 +211,11 @@ class StoredBookUpdateTable extends _is.UpdateTable<StoredBookTable> {
         table.createdAt,
         value,
       );
+
+  _is.ColumnValue<bool, bool> favorite(bool value) => _is.ColumnValue(
+    table.favorite,
+    value,
+  );
 }
 
 class StoredBookTable extends _is.Table<_is.UuidValue?> {
@@ -223,6 +241,11 @@ class StoredBookTable extends _is.Table<_is.UuidValue?> {
       'createdAt',
       this,
     );
+    favorite = _is.ColumnBool(
+      'favorite',
+      this,
+      hasDefault: true,
+    );
   }
 
   late final StoredBookUpdateTable updateTable;
@@ -237,6 +260,8 @@ class StoredBookTable extends _is.Table<_is.UuidValue?> {
 
   late final _is.ColumnDateTime createdAt;
 
+  late final _is.ColumnBool favorite;
+
   @override
   List<_is.Column> get columns => [
     id,
@@ -245,6 +270,7 @@ class StoredBookTable extends _is.Table<_is.UuidValue?> {
     status,
     shelfId,
     createdAt,
+    favorite,
   ];
 }
 

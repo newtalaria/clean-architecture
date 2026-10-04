@@ -618,6 +618,18 @@ pages:
     description: The Flutter use case calls one repository method. The page does not re-check capacity.
     tags: [clean-architecture, tutorial]
 
+  - id: tut-server-favorite
+    path: tutorials/shelf/server/favorite.md
+    title: Favourite a book
+    description: A flag on the book. The use case loads, copies, and saves. The shelf does not change.
+    tags: [clean-architecture, tutorial]
+
+  - id: tut-flutter-favorite
+    path: tutorials/shelf/flutter/favorite.md
+    title: Favourite on Flutter
+    description: The heart is a callback on the tile. The page calls one use case and reloads the list.
+    tags: [clean-architecture, tutorial]
+
   - id: tut-server-talaria
     path: tutorials/shelf/server/talaria.md
     title: Server instrumentation

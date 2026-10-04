@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shelf_client/shelf_client.dart';
 import 'package:shelf_flutter/application/book/list_books_use_case.dart';
 import 'package:shelf_flutter/application/book/save_book_use_case.dart';
+import 'package:shelf_flutter/application/book/set_book_favorite_use_case.dart';
 import 'package:shelf_flutter/application/ports/clock.dart';
 import 'package:shelf_flutter/application/ports/id_generator.dart';
 import 'package:shelf_flutter/application/shelf/list_shelves_use_case.dart';
@@ -41,6 +42,10 @@ final saveBookUseCaseProvider = Provider<SaveBookUseCase>((ref) {
 
 final listBooksUseCaseProvider = Provider<ListBooksUseCase>((ref) {
   return ListBooksUseCase(ref.watch(bookRepositoryProvider));
+});
+
+final setBookFavoriteUseCaseProvider = Provider<SetBookFavoriteUseCase>((ref) {
+  return SetBookFavoriteUseCase(ref.watch(bookRepositoryProvider));
 });
 
 final saveShelfUseCaseProvider = Provider<SaveShelfUseCase>((ref) {

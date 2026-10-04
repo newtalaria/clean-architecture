@@ -19,6 +19,8 @@ import 'package:shelf_client/src/protocol/presentation/book/dto/book_list_respon
     as _itmrzk02;
 import 'package:shelf_client/src/protocol/presentation/book/input/save_book_input.dart'
     as _ive2x8b9;
+import 'package:shelf_client/src/protocol/presentation/book/input/set_book_favorite_input.dart'
+    as _i4gr0na4;
 import 'package:shelf_client/src/protocol/presentation/shelf/dto/shelf_dto.dart'
     as _ic3t7k1z;
 import 'package:shelf_client/src/protocol/presentation/shelf/dto/shelf_list_response.dart'
@@ -43,6 +45,14 @@ class EndpointBook extends _isc.EndpointRef {
         'save',
         {'input': input},
       );
+
+  _ida.Future<_ia8p4gki.BookDto> setFavorite(
+    _i4gr0na4.SetBookFavoriteInput input,
+  ) => caller.callServerEndpoint<_ia8p4gki.BookDto>(
+    'book',
+    'setFavorite',
+    {'input': input},
+  );
 
   _ida.Future<_itmrzk02.BookListResponse> list() =>
       caller.callServerEndpoint<_itmrzk02.BookListResponse>(

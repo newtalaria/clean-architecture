@@ -4,7 +4,7 @@ description: A long tutorial. Build a hybrid Serverpod API and a hybrid Flutter 
 tags: [clean-architecture, tutorial, serverpod, flutter]
 ---
 
-This is the long tutorial. You build one app, Shelf, in the order you would type it. A shelf holds books. You can save a book, save a shelf, and place a book on a shelf. Placing a book is one use case that needs both features.
+This is the long tutorial. You build one app, Shelf, in the order you would type it. A shelf holds books. You can save a book, save a shelf, place a book on a shelf, and mark a book as a favourite. Placing a book is one use case that needs both features. Favouriting a book needs only the book repository.
 
 Both sides are hybrid.
 
@@ -20,7 +20,7 @@ The running code is [`examples/tutorial`](https://github.com/newtalaria/clean-ar
 
 Shelf is a reading shelf for one person on one machine. There are no accounts. Every chapter is about a layer boundary.
 
-A book has a title, an author, and a reading status: `unread`, `reading`, or `read`. A shelf has a name and a capacity from 1 to 500. A book sits on at most one shelf. A shelf refuses another book when it is full.
+A book has a title, an author, a reading status (`unread`, `reading`, or `read`), and a favourite flag. A shelf has a name and a capacity from 1 to 500. A book sits on at most one shelf. A shelf refuses another book when it is full. A favourite does not move the book.
 
 You finish books on the server, then on Flutter, so you can save a book in the app before shelves exist. Shelves repeat the same path in shorter chapters. Placing a book is the chapter that uses both repositories.
 
@@ -73,7 +73,7 @@ lib/data/                     Serverpod repositories and ProtocolMappers
 lib/presentation/features/books/
 lib/presentation/features/shelves/
 lib/presentation/router/      Beamer
-lib/ui/                       book_tile.dart, shelf_tile.dart, no Riverpod
+lib/ui/                       tiles, shelf_theme.dart, shelf_frame.dart, no Riverpod
 lib/app/providers.dart
 lib/bootstrap/talaria_monitoring.dart
 ```
@@ -118,11 +118,13 @@ The Flutter domain is written again. The client package cannot import the server
 26. [Shelves on Flutter](flutter/shelves.md)
 27. [Place a book on a shelf](server/place-book.md)
 28. [The place control](flutter/place-book.md)
+29. [Favourite a book](server/favorite.md)
+30. [Favourite on Flutter](flutter/favorite.md)
 
 **Talaria, after the app runs**
 
-29. [Server instrumentation](server/talaria.md)
-30. [Flutter instrumentation](flutter/talaria.md)
-31. [Where to go next](close.md)
+31. [Server instrumentation](server/talaria.md)
+32. [Flutter instrumentation](flutter/talaria.md)
+33. [Where to go next](close.md)
 
 The short courses are still there if you want to diff the three layouts on a notes API. This tutorial is the one to follow when you are starting a Serverpod project.

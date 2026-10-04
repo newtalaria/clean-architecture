@@ -15,6 +15,7 @@ import 'package:serverpod_client/serverpod_client.dart' as _isc;
 import 'presentation/book/dto/book_dto.dart' as _iekaty6a;
 import 'presentation/book/dto/book_list_response.dart' as _i8f4vu3k;
 import 'presentation/book/input/save_book_input.dart' as _iddub8hi;
+import 'presentation/book/input/set_book_favorite_input.dart' as _ic6hfk5j;
 import 'presentation/book/reading_status_wire.dart' as _itly07lq;
 import 'presentation/shared/api_conflict_exception.dart' as _ixvmdfz9;
 import 'presentation/shared/api_not_found_exception.dart' as _idmlder2;
@@ -26,6 +27,7 @@ import 'presentation/shelf/input/save_shelf_input.dart' as _i50l9d0c;
 export 'presentation/book/dto/book_dto.dart';
 export 'presentation/book/dto/book_list_response.dart';
 export 'presentation/book/input/save_book_input.dart';
+export 'presentation/book/input/set_book_favorite_input.dart';
 export 'presentation/book/reading_status_wire.dart';
 export 'presentation/shared/api_conflict_exception.dart';
 export 'presentation/shared/api_not_found_exception.dart';
@@ -79,6 +81,9 @@ class Protocol extends _isc.SerializationManager {
     if (t == _iddub8hi.SaveBookInput) {
       return _iddub8hi.SaveBookInput.fromJson(data) as T;
     }
+    if (t == _ic6hfk5j.SetBookFavoriteInput) {
+      return _ic6hfk5j.SetBookFavoriteInput.fromJson(data) as T;
+    }
     if (t == _itly07lq.ReadingStatusWire) {
       return _itly07lq.ReadingStatusWire.fromJson(data) as T;
     }
@@ -112,6 +117,12 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _isc.getType<_iddub8hi.SaveBookInput?>()) {
       return (data != null ? _iddub8hi.SaveBookInput.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_ic6hfk5j.SetBookFavoriteInput?>()) {
+      return (data != null
+              ? _ic6hfk5j.SetBookFavoriteInput.fromJson(data)
+              : null)
           as T;
     }
     if (t == _isc.getType<_itly07lq.ReadingStatusWire?>()) {
@@ -171,6 +182,7 @@ class Protocol extends _isc.SerializationManager {
       _iekaty6a.BookDto => 'BookDto',
       _i8f4vu3k.BookListResponse => 'BookListResponse',
       _iddub8hi.SaveBookInput => 'SaveBookInput',
+      _ic6hfk5j.SetBookFavoriteInput => 'SetBookFavoriteInput',
       _itly07lq.ReadingStatusWire => 'ReadingStatusWire',
       _ixvmdfz9.ApiConflictException => 'ApiConflictException',
       _idmlder2.ApiNotFoundException => 'ApiNotFoundException',
@@ -199,6 +211,8 @@ class Protocol extends _isc.SerializationManager {
         return 'BookListResponse';
       case _iddub8hi.SaveBookInput():
         return 'SaveBookInput';
+      case _ic6hfk5j.SetBookFavoriteInput():
+        return 'SetBookFavoriteInput';
       case _itly07lq.ReadingStatusWire():
         return 'ReadingStatusWire';
       case _ixvmdfz9.ApiConflictException():
@@ -233,6 +247,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'SaveBookInput') {
       return deserialize<_iddub8hi.SaveBookInput>(data['data']);
+    }
+    if (dataClassName == 'SetBookFavoriteInput') {
+      return deserialize<_ic6hfk5j.SetBookFavoriteInput>(data['data']);
     }
     if (dataClassName == 'ReadingStatusWire') {
       return deserialize<_itly07lq.ReadingStatusWire>(data['data']);

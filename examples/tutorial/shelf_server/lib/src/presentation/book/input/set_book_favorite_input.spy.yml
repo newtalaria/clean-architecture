@@ -1,0 +1,4 @@
+class: SetBookFavoriteInput
+fields:
+  bookId: UuidValue
+  favorite: bool

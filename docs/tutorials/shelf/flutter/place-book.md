@@ -87,11 +87,21 @@ Future<String?> place({
 }
 ```
 
-On `ShelvesPage`, add `String? _bookId` and `String? _shelfId`, watch `booksProvider`, and insert `_PlaceRow` between the save button and the list. On success the page invalidates `booksProvider` so the next list comes from the server, with the new `shelfId`.
+On `ShelvesPage`, add these imports if they are not there yet:
+
+```dart
+import 'package:shelf_flutter/domain/book/book.dart';
+import 'package:shelf_flutter/domain/shelf/shelf.dart';
+import 'package:shelf_flutter/presentation/features/books/books_notifier.dart';
+```
+
+Add `String? _bookId` and `String? _shelfId`. Watch `booksProvider`. After the "New shelf" panel, insert a second panel. On success the page invalidates `booksProvider` so the next list comes from the server, with the new `shelfId`.
 
 ```dart
 const SizedBox(height: 16),
-_PlaceRow(
+ShelfPanel(
+  title: 'Place a book',
+  child: _PlaceRow(
   books: books.asData?.value ?? const [],
   shelves: shelves.asData?.value ?? const [],
   bookId: _bookId,
@@ -111,6 +121,7 @@ _PlaceRow(
       ref.invalidate(booksProvider);
     }
   },
+  ),
 ),
 ```
 
@@ -140,32 +151,31 @@ class _PlaceRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final available = books.where((book) => book.shelfId == null).toList();
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: DropdownButton<String>(
-            key: const Key('place-book'),
-            isExpanded: true,
-            hint: const Text('Book'),
+          child: _Choice(
+            keyName: 'place-book',
+            hint: 'Book',
             value: bookId,
+            onChanged: onBook,
             items: [
               for (final book in available)
                 DropdownMenuItem(value: book.id, child: Text(book.title)),
             ],
-            onChanged: onBook,
           ),
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: DropdownButton<String>(
-            key: const Key('place-shelf'),
-            isExpanded: true,
-            hint: const Text('Shelf'),
+          child: _Choice(
+            keyName: 'place-shelf',
+            hint: 'Shelf',
             value: shelfId,
+            onChanged: onShelf,
             items: [
               for (final shelf in shelves)
                 DropdownMenuItem(value: shelf.id, child: Text(shelf.name)),
             ],
-            onChanged: onShelf,
           ),
         ),
         const SizedBox(width: 8),
@@ -175,6 +185,47 @@ class _PlaceRow extends StatelessWidget {
           child: const Text('Place'),
         ),
       ],
+    );
+  }
+}
+
+class _Choice extends StatelessWidget {
+  const _Choice({
+    required this.keyName,
+    required this.hint,
+    required this.value,
+    required this.items,
+    required this.onChanged,
+  });
+
+  final String keyName;
+  final String hint;
+  final String? value;
+  final List<DropdownMenuItem<String>> items;
+  final ValueChanged<String?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: theme.scaffoldBackgroundColor,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: theme.colorScheme.outline),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            key: Key(keyName),
+            isExpanded: true,
+            hint: Text(hint),
+            value: value,
+            items: items,
+            onChanged: onChanged,
+          ),
+        ),
+      ),
     );
   }
 }

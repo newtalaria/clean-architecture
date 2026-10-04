@@ -6,3 +6,4 @@ fields:
   status: ReadingStatusWire
   shelfId: UuidValue?
   createdAt: DateTime
+  favorite: bool

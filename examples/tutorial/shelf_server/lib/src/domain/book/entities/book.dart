@@ -12,6 +12,7 @@ class Book {
     required this.status,
     required this.createdAt,
     this.shelfId,
+    this.favorite = false,
   });
 
   final String id;
@@ -22,6 +23,9 @@ class Book {
 
   /// Set once [placeOnShelf] succeeds. Null means the book is not on a shelf.
   final String? shelfId;
+
+  /// A favourite is a flag on the book. It does not move the book between shelves.
+  final bool favorite;
 
   static const _authorMax = 200;
 
@@ -53,6 +57,20 @@ class Book {
       status: status,
       createdAt: createdAt,
       shelfId: shelfId,
+      favorite: favorite,
+    );
+  }
+
+  /// Returns the same book with [favorite] set. The shelf does not change.
+  Book setFavorite(bool favorite) {
+    return Book(
+      id: id,
+      title: title,
+      authorName: authorName,
+      status: status,
+      createdAt: createdAt,
+      shelfId: shelfId,
+      favorite: favorite,
     );
   }
 

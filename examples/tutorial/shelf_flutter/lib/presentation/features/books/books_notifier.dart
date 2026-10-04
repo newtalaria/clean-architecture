@@ -3,6 +3,7 @@ import 'package:shelf_flutter/app/providers.dart';
 import 'package:shelf_flutter/application/book/save_book_command.dart';
 import 'package:shelf_flutter/domain/book/book.dart';
 import 'package:shelf_flutter/domain/book/reading_status.dart';
+import 'package:shelf_flutter/domain/shared/not_found.dart';
 import 'package:shelf_flutter/domain/shared/validation_failure.dart';
 
 class BooksNotifier extends AsyncNotifier<List<Book>> {
@@ -29,6 +30,22 @@ class BooksNotifier extends AsyncNotifier<List<Book>> {
       state = AsyncData(await ref.read(listBooksUseCaseProvider).execute());
       return null;
     } on ValidationFailure catch (error) {
+      return error.message;
+    }
+  }
+
+  /// Returns a message when the book does not exist. Otherwise null.
+  Future<String?> setFavorite({
+    required String bookId,
+    required bool favorite,
+  }) async {
+    try {
+      await ref
+          .read(setBookFavoriteUseCaseProvider)
+          .execute(bookId: bookId, favorite: favorite);
+      state = AsyncData(await ref.read(listBooksUseCaseProvider).execute());
+      return null;
+    } on NotFound catch (error) {
       return error.message;
     }
   }

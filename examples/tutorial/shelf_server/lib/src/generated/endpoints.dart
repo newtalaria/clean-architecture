@@ -13,6 +13,8 @@
 import 'package:serverpod/serverpod.dart' as _is;
 import 'package:shelf_server/src/generated/presentation/book/input/save_book_input.dart'
     as _i7mvohtk;
+import 'package:shelf_server/src/generated/presentation/book/input/set_book_favorite_input.dart'
+    as _i782z0q9;
 import 'package:shelf_server/src/generated/presentation/shelf/input/place_book_input.dart'
     as _iops9rtl;
 import 'package:shelf_server/src/generated/presentation/shelf/input/save_shelf_input.dart'
@@ -58,6 +60,25 @@ class Endpoints extends _is.EndpointDispatch {
                 session,
                 params['input'],
               ),
+        ),
+        'setFavorite': _is.MethodConnector(
+          name: 'setFavorite',
+          params: {
+            'input': _is.ParameterDescription(
+              name: 'input',
+              type: _is.getType<_i782z0q9.SetBookFavoriteInput>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['book'] as _izuwvhsa.BookEndpoint).setFavorite(
+                    session,
+                    params['input'],
+                  ),
         ),
         'list': _is.MethodConnector(
           name: 'list',

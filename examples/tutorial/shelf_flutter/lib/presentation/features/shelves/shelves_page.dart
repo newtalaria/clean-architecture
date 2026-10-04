@@ -5,6 +5,7 @@ import 'package:shelf_flutter/domain/shelf/shelf.dart';
 import 'package:shelf_flutter/presentation/app/shelf_nav.dart';
 import 'package:shelf_flutter/presentation/features/books/books_notifier.dart';
 import 'package:shelf_flutter/presentation/features/shelves/shelves_notifier.dart';
+import 'package:shelf_flutter/ui/shelf_frame.dart';
 import 'package:shelf_flutter/ui/shelf_tile.dart';
 
 class ShelvesPage extends ConsumerStatefulWidget {
@@ -32,41 +33,62 @@ class _ShelvesPageState extends ConsumerState<ShelvesPage> {
   Widget build(BuildContext context) {
     final shelves = ref.watch(shelvesProvider);
     final books = ref.watch(booksProvider);
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const ShelfNav(),
-            TextField(
-              key: const Key('shelf-name'),
-              controller: _name,
-              decoration: const InputDecoration(labelText: 'Name'),
+    final theme = Theme.of(context);
+    return ShelfFrame(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const ShelfNav(section: ShelfSection.shelves),
+          const SizedBox(height: 20),
+          ShelfPanel(
+            title: 'New shelf',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextField(
+                  key: const Key('shelf-name'),
+                  controller: _name,
+                  textInputAction: TextInputAction.next,
+                  decoration: const InputDecoration(labelText: 'Name'),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  key: const Key('shelf-capacity'),
+                  controller: _capacity,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Capacity'),
+                ),
+                if (_error != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    _error!,
+                    style: TextStyle(color: theme.colorScheme.error),
+                  ),
+                ],
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: FilledButton(
+                    key: const Key('save-shelf'),
+                    onPressed: () async {
+                      final capacity = int.tryParse(_capacity.text.trim()) ?? 0;
+                      final message = await ref
+                          .read(shelvesProvider.notifier)
+                          .save(name: _name.text, capacity: capacity);
+                      if (!mounted) return;
+                      setState(() => _error = message);
+                      if (message == null) _name.clear();
+                    },
+                    child: const Text('Save shelf'),
+                  ),
+                ),
+              ],
             ),
-            TextField(
-              key: const Key('shelf-capacity'),
-              controller: _capacity,
-              decoration: const InputDecoration(labelText: 'Capacity'),
-              keyboardType: TextInputType.number,
-            ),
-            if (_error != null) Text(_error!),
-            const SizedBox(height: 8),
-            FilledButton(
-              key: const Key('save-shelf'),
-              onPressed: () async {
-                final capacity = int.tryParse(_capacity.text.trim()) ?? 0;
-                final message = await ref
-                    .read(shelvesProvider.notifier)
-                    .save(name: _name.text, capacity: capacity);
-                if (!mounted) return;
-                setState(() => _error = message);
-                if (message == null) _name.clear();
-              },
-              child: const Text('Save shelf'),
-            ),
-            const SizedBox(height: 16),
-            _PlaceRow(
+          ),
+          const SizedBox(height: 16),
+          ShelfPanel(
+            title: 'Place a book',
+            child: _PlaceRow(
               books: books.asData?.value ?? const [],
               shelves: shelves.asData?.value ?? const [],
               bookId: _bookId,
@@ -87,24 +109,31 @@ class _ShelvesPageState extends ConsumerState<ShelvesPage> {
                 }
               },
             ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: shelves.when(
-                data: (items) {
-                  if (items.isEmpty) return const Text('No shelves yet');
-                  return ListView(
-                    children: [
-                      for (final shelf in items)
-                        ShelfTile(name: shelf.name, capacity: shelf.capacity),
-                    ],
+          ),
+          const SizedBox(height: 22),
+          Text('Shelves', style: theme.textTheme.titleMedium),
+          const SizedBox(height: 10),
+          Expanded(
+            child: shelves.when(
+              data: (items) {
+                if (items.isEmpty) {
+                  return const ShelfEmpty(
+                    message: 'No shelves yet',
+                    hint: 'Give a shelf a name and how many books it holds.',
                   );
-                },
-                loading: () => const Text('Loading'),
-                error: (error, _) => Text(error.toString()),
-              ),
+                }
+                return ListView(
+                  children: [
+                    for (final shelf in items)
+                      ShelfTile(name: shelf.name, capacity: shelf.capacity),
+                  ],
+                );
+              },
+              loading: () => const Text('Loading'),
+              error: (error, _) => Text(error.toString()),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -133,32 +162,31 @@ class _PlaceRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final available = books.where((book) => book.shelfId == null).toList();
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: DropdownButton<String>(
-            key: const Key('place-book'),
-            isExpanded: true,
-            hint: const Text('Book'),
+          child: _Choice(
+            keyName: 'place-book',
+            hint: 'Book',
             value: bookId,
+            onChanged: onBook,
             items: [
               for (final book in available)
                 DropdownMenuItem(value: book.id, child: Text(book.title)),
             ],
-            onChanged: onBook,
           ),
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: DropdownButton<String>(
-            key: const Key('place-shelf'),
-            isExpanded: true,
-            hint: const Text('Shelf'),
+          child: _Choice(
+            keyName: 'place-shelf',
+            hint: 'Shelf',
             value: shelfId,
+            onChanged: onShelf,
             items: [
               for (final shelf in shelves)
                 DropdownMenuItem(value: shelf.id, child: Text(shelf.name)),
             ],
-            onChanged: onShelf,
           ),
         ),
         const SizedBox(width: 8),
@@ -168,6 +196,47 @@ class _PlaceRow extends StatelessWidget {
           child: const Text('Place'),
         ),
       ],
+    );
+  }
+}
+
+class _Choice extends StatelessWidget {
+  const _Choice({
+    required this.keyName,
+    required this.hint,
+    required this.value,
+    required this.items,
+    required this.onChanged,
+  });
+
+  final String keyName;
+  final String hint;
+  final String? value;
+  final List<DropdownMenuItem<String>> items;
+  final ValueChanged<String?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: theme.scaffoldBackgroundColor,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: theme.colorScheme.outline),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            key: Key(keyName),
+            isExpanded: true,
+            hint: Text(hint),
+            value: value,
+            items: items,
+            onChanged: onChanged,
+          ),
+        ),
+      ),
     );
   }
 }

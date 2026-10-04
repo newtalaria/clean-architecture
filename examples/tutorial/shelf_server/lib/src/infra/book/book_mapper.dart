@@ -15,6 +15,7 @@ class BookMapper {
       status: ReadingStatus.values.byName(row.status),
       shelfId: row.shelfId == null ? null : uuidToString(row.shelfId!),
       createdAt: row.createdAt,
+      favorite: row.favorite,
     );
   }
 
@@ -26,6 +27,7 @@ class BookMapper {
       status: book.status.name,
       shelfId: book.shelfId == null ? null : uuidFromString(book.shelfId!),
       createdAt: book.createdAt,
+      favorite: book.favorite,
     );
   }
 }
