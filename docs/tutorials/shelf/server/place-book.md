@@ -207,13 +207,27 @@ fields:
 
 `ShelfEndpoint.place` returns `BookDto`, not `ShelfDto`. The thing that changed on the wire is the book. The shelf endpoint borrows `BookWireMappers` for that return value. It does not define a second book DTO.
 
+Import the book mapper and add a field beside `_mappers`. `_mappers` still maps shelves. `_books` maps the book this method returns.
+
 ```dart
+import 'package:shelf_server/src/presentation/book/wire_mappers.dart';
+```
+
+```dart
+final _mappers = const ShelfWireMappers();
+final _books = const BookWireMappers();
+```
+
+```dart
+/// Returns the book wire type. The shelf feature borrows the book mapper.
 Future<BookDto> place(Session session, PlaceBookInput input) {
   return runUseCase(() async {
-    final book = await _useCases.placeBook(session).execute(
-      bookId: input.bookId.toString(),
-      shelfId: input.shelfId.toString(),
-    );
+    final book = await _useCases
+        .placeBook(session)
+        .execute(
+          bookId: input.bookId.toString(),
+          shelfId: input.shelfId.toString(),
+        );
     return _books.toDto(book);
   });
 }

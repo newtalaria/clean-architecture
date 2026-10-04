@@ -96,34 +96,56 @@ Future<String?> setFavorite({
 }
 ```
 
-`FakeBookRepository.setFavorite` throws `NotFound` when the id is missing. Otherwise it stores `book.setFavorite(favorite)`.
+Add `setFavorite` to `test/fakes/fake_book_repository.dart`. The `NotFound` import is already there from `placeOnShelf`. A missing id throws `NotFound`. Otherwise the fake stores `book.setFavorite(favorite)`.
+
+```dart
+  @override
+  Future<Book> setFavorite({
+    required String bookId,
+    required bool favorite,
+  }) async {
+    final book = books[bookId];
+    if (book == null) {
+      throw const NotFound('Book not found');
+    }
+    final updated = book.setFavorite(favorite);
+    books[bookId] = updated;
+    return updated;
+  }
+```
 
 ## The heart
 
-The tile already draws the heart when `onFavorite` is set. On `BooksPage`, add `String? _error` and show it under the header when it is set. Pass the flag and the callback. The key is `favorite-$title`, which the widget test taps.
+The tile already draws the heart when `onFavorite` is set. On `_BooksPageState`, add `String? _error;`. At the start of `build`, take the theme. After `ShelfSectionHeader`, and before the 16-pixel gap, show the message. `_list` already receives `shelves` from the shelves chapter. Pass the flag and the callback. The key is `favorite-$title`, which the widget test taps.
 
 ```dart
-if (_error != null) ...[
-  const SizedBox(height: 8),
-  Text(_error!, style: TextStyle(color: theme.colorScheme.error)),
-],
+    final theme = Theme.of(context);
 ```
 
 ```dart
-BookTile(
-  title: book.title,
-  authorName: book.authorName,
-  status: book.status.name,
-  shelfName: _shelfName(shelves, book.shelfId),
-  favorite: book.favorite,
-  onFavorite: () async {
-    final message = await ref
-        .read(booksProvider.notifier)
-        .setFavorite(bookId: book.id, favorite: !book.favorite);
-    if (!mounted) return;
-    setState(() => _error = message);
-  },
-),
+          if (_error != null) ...[
+            const SizedBox(height: 8),
+            Text(_error!, style: TextStyle(color: theme.colorScheme.error)),
+          ],
+```
+
+Replace the `BookTile` inside `_list`:
+
+```dart
+          BookTile(
+            title: book.title,
+            authorName: book.authorName,
+            status: book.status.name,
+            shelfName: _shelfName(shelves, book.shelfId),
+            favorite: book.favorite,
+            onFavorite: () async {
+              final message = await ref
+                  .read(booksProvider.notifier)
+                  .setFavorite(bookId: book.id, favorite: !book.favorite);
+              if (!mounted) return;
+              setState(() => _error = message);
+            },
+          ),
 ```
 
 On `ShelfPage`, the row does not repeat the shelf name. Pass `favorite` and the same callback. The page needs a `String? _error` field if the list-only page did not keep one. The place control already has `_error`. Use that field for the heart as well.

@@ -715,18 +715,71 @@ Shelf? _findShelf(List<Shelf> shelves, String id) {
 
 On `BooksPage`, watch the shelf list and pass the shelf name into the tile. `shelvesProvider` can still be loading. A missing name leaves the line off the row.
 
-```dart
-final shelves = ref.watch(shelvesProvider).asData?.value ?? const <Shelf>[];
-```
+`shelves` is a local in `build`. The tile is built inside `_list`, so `_list` has to receive the list. Add these imports:
 
 ```dart
-BookTile(
-  title: book.title,
-  authorName: book.authorName,
-  status: book.status.name,
-  shelfName: _shelfName(shelves, book.shelfId),
-)
+import 'package:shelf_flutter/domain/shelf/shelf.dart';
+import 'package:shelf_flutter/presentation/features/shelves/shelves_notifier.dart';
 ```
+
+Replace `build` and `_list`:
+
+```dart
+  @override
+  Widget build(BuildContext context) {
+    final books = ref.watch(booksProvider);
+    final shelves = ref.watch(shelvesProvider).asData?.value ?? const <Shelf>[];
+    return ShelfFrame(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const ShelfNav(section: ShelfSection.books),
+          const SizedBox(height: 28),
+          ShelfSectionHeader(
+            title: 'Library',
+            detail: books.asData?.value == null
+                ? null
+                : _countLabel(books.requireValue.length),
+            action: FilledButton(
+              key: const Key('add-book'),
+              onPressed: _addBook,
+              child: const Text('Add book'),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Expanded(child: _list(books, shelves)),
+        ],
+      ),
+    );
+  }
+
+  Widget _list(AsyncValue<List<Book>> books, List<Shelf> shelves) {
+    if (books.hasError && !books.hasValue) {
+      return const ShelfFailure(message: 'Could not load the library.');
+    }
+    if (!books.hasValue) return const ShelfLoading();
+    final items = books.requireValue;
+    if (items.isEmpty) {
+      return const ShelfEmpty(
+        message: 'No books yet',
+        hint: 'Save a title and it will show up here.',
+      );
+    }
+    return ListView(
+      children: [
+        for (final book in items)
+          BookTile(
+            title: book.title,
+            authorName: book.authorName,
+            status: book.status.name,
+            shelfName: _shelfName(shelves, book.shelfId),
+          ),
+      ],
+    );
+  }
+```
+
+Add the helper next to `_countLabel`:
 
 ```dart
 String? _shelfName(List<Shelf> shelves, String? shelfId) {
@@ -738,7 +791,7 @@ String? _shelfName(List<Shelf> shelves, String? shelfId) {
 }
 ```
 
-Add the shelf and shelves-notifier imports. In `test/widget/books_page_test.dart`, override `shelfRepositoryProvider` with `FakeShelfRepository()` next to the book repository. The page watches shelves now, and the test still does not start Serverpod.
+In `test/widget/books_page_test.dart`, override `shelfRepositoryProvider` with `FakeShelfRepository()` next to the book repository. The page watches shelves now, and the test still does not start Serverpod.
 
 `lib/presentation/router/shelves_location.dart` stacks the shelf page when the path has a `shelfId`.
 

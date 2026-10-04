@@ -83,7 +83,52 @@ class SetBookFavoriteUseCase {
 }
 ```
 
-`test/unit/application/set_book_favorite_use_case_test.dart` saves a placed book into `FakeBookRepository`, calls the use case, and expects `favorite` true and `shelfId` still `'shelf-1'`. A missing id throws `NotFound`.
+Create `test/unit/application/set_book_favorite_use_case_test.dart`. It saves a placed book into `FakeBookRepository`, calls the use case, and expects `favorite` true and `shelfId` still `'shelf-1'`. A missing id throws `NotFound`.
+
+```dart
+import 'package:shelf_server/src/application/book/set_book_favorite_use_case.dart';
+import 'package:shelf_server/src/domain/book/entities/book.dart';
+import 'package:shelf_server/src/domain/book/value_objects/reading_status.dart';
+import 'package:shelf_server/src/domain/shared/exceptions/not_found.dart';
+import 'package:test/test.dart';
+
+import '../../fakes/fake_book_repository.dart';
+
+void main() {
+  final created = DateTime.utc(2026, 10, 3);
+
+  test('setFavorite persists the flag and keeps the shelf', () async {
+    final books = FakeBookRepository();
+    final book = Book.create(
+      id: 'b1',
+      title: 'The Dispossessed',
+      authorName: 'Le Guin',
+      status: ReadingStatus.unread,
+      createdAt: created,
+    ).placeOnShelf('shelf-1');
+    await books.save(book);
+
+    final updated = await SetBookFavoriteUseCase(books).execute(
+      bookId: 'b1',
+      favorite: true,
+    );
+
+    expect(updated.favorite, isTrue);
+    expect(updated.shelfId, 'shelf-1');
+    expect(books.books['b1']!.favorite, isTrue);
+  });
+
+  test('a missing book is not found', () {
+    expect(
+      () => SetBookFavoriteUseCase(FakeBookRepository()).execute(
+        bookId: 'missing',
+        favorite: true,
+      ),
+      throwsA(isA<NotFound>()),
+    );
+  });
+}
+```
 
 ## Row and wire
 
@@ -144,7 +189,31 @@ serverpod create-migration
 
 The migration adds `favorite boolean NOT NULL DEFAULT false` on `stored_book`.
 
-In `test/integration/save_book_test.dart`, save a book, expect `favorite` false, call `endpoints.book.setFavorite` with `SetBookFavoriteInput`, and expect `list` to return the flag.
+Add this test inside the existing `withServerpod('Given the book endpoint'` group in `test/integration/save_book_test.dart`, after the blank-title test. It saves a book, expects `favorite` false, calls `endpoints.book.setFavorite`, and expects `list` to return the flag.
+
+```dart
+    test('setFavorite persists and list returns the flag', () async {
+      final saved = await endpoints.book.save(
+        sessionBuilder,
+        SaveBookInput(
+          title: 'The Dispossessed',
+          authorName: 'Le Guin',
+          status: ReadingStatusWire.unread,
+        ),
+      );
+      expect(saved.favorite, isFalse);
+
+      final loved = await endpoints.book.setFavorite(
+        sessionBuilder,
+        SetBookFavoriteInput(bookId: saved.id, favorite: true),
+      );
+      expect(loved.favorite, isTrue);
+      expect(loved.id, saved.id);
+
+      final listed = await endpoints.book.list(sessionBuilder);
+      expect(listed.books.single.favorite, isTrue);
+    });
+```
 
 ```bash
 dart test

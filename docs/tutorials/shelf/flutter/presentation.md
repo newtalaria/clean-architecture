@@ -225,6 +225,8 @@ final booksProvider = AsyncNotifierProvider<BooksNotifier, List<Book>>(
 
 Empty, loading, and failure are three widgets. An empty library says `No books yet`. A failed load says `Could not load the library.`
 
+Create `lib/ui/shelf_theme.dart`:
+
 ```dart
 import 'package:flutter/material.dart';
 

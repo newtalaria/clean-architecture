@@ -22,13 +22,13 @@ The template also writes a greeting endpoint. From `examples/tutorial/shelf_serv
 serverpod generate
 ```
 
-Shelf does not start from a sample endpoint.
+Shelf does not start from a sample endpoint. If `lib/src/generated/greetings/` is still on disk after generate, delete that folder. `endpoints.dart` must not import the sample.
 
 The template listens on port 8080 and Postgres on 8090. Serverpod 4.0.1 already writes `config/passwords.yaml`. There is no `config/passwords.example.yaml` to copy. The generated passwords file is what `dart test` and `docker compose` read.
 
 Set the ports like this:
 
-- `config/development.yaml`: API `port` and `publicPort` 8280, Insights 8281, web 8282, database `port` 8290.
+- `config/development.yaml`: API `port` and `publicPort` 8280, Insights 8281, web 8282, database `port` 8290. In the comment at the top of that file, change `8080` to `8280`. The comment is not a setting. The `port` values are what the process binds.
 - `docker-compose.yaml`: publish Postgres as `8290:5432` and the test database as `9290:5432`. The container still listens on 5432.
 - `config/test.yaml`: set the database `port` to 9290. Leave the API, Insights, and web ports at `0`. Those zeros let concurrent tests each take a free port. The file does not contain 8080.
 - `config/staging.yaml` and `config/production.yaml`: set the API, Insights, and web `port` values to 8280, 8281, and 8282. Leave `publicPort` at 443 and the database `port` at 5432. Those files describe a remote host, not the local Docker port.

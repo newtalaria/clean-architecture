@@ -33,6 +33,28 @@ Add `placeOnShelf` to `BookRepository` now. The shelf endpoint exists, so `clien
 Future<Book> placeOnShelf({required String bookId, required String shelfId});
 ```
 
+Add the same method to `test/fakes/fake_book_repository.dart`, and import `package:shelf_flutter/domain/shared/not_found.dart`. A missing id is `NotFound`. The widget test places a book that is already in the map.
+
+```dart
+import 'package:shelf_flutter/domain/shared/not_found.dart';
+```
+
+```dart
+  @override
+  Future<Book> placeOnShelf({
+    required String bookId,
+    required String shelfId,
+  }) async {
+    final book = books[bookId];
+    if (book == null) {
+      throw const NotFound('Book not found');
+    }
+    final placed = book.placeOnShelf(shelfId);
+    books[bookId] = placed;
+    return placed;
+  }
+```
+
 `ServerpodBookRepository.placeOnShelf` calls `client.shelf.place` and maps `ApiConflictException` to `Conflict` through `throwDomain`. `UuidValue` comes from `package:shelf_client`.
 
 ```dart

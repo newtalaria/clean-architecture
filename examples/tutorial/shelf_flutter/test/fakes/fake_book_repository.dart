@@ -25,7 +25,7 @@ class FakeBookRepository implements BookRepository {
   }) async {
     final book = books[bookId];
     if (book == null) {
-      throw StateError('missing book');
+      throw const NotFound('Book not found');
     }
     final placed = book.placeOnShelf(shelfId);
     books[bookId] = placed;
